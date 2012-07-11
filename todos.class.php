@@ -33,7 +33,7 @@ class CTodo extends w2p_Core_BaseObject
     {
 		$user_id = ($user_id > 0) ? $user_id : $AppUI->user_id;
 
-        $q = new w2p_Database_Query();
+        $q = $this->_getQuery();
 		$q->addQuery('st.*');
 		$q->addTable('todos', 'st');
 
@@ -73,7 +73,7 @@ class CTodo extends w2p_Core_BaseObject
         $nextSunday = date('Y-m-d 23:59:59', strtotime('this Sunday +8 day'));
         $nextSunday = $AppUI->convertToSystemTZ($nextSunday);
 
-        $q = new w2p_Database_Query();
+        $q = $this->_getQuery();
 		$q->addQuery('st.*');
 		$q->addTable('todos', 'st');
 		switch ($dateRangeName) {
@@ -139,7 +139,7 @@ class CTodo extends w2p_Core_BaseObject
 		 * that.
 		 */
 
-		$q = new w2p_Database_Query();
+		$q = $this->_getQuery();
 		$q->addQuery('todo_id as id');
 		$q->addQuery('todo_title as name');
         $q->addQuery('todo_title as description');
@@ -191,7 +191,7 @@ class CTodo extends w2p_Core_BaseObject
         if (count($errorMsgArray) > 0) {
           return $errorMsgArray;
         }
-        $q = new w2p_Database_Query;
+        $q = $this->_getQuery();
 		$this->w2PTrimAll();
 
         $this->todo_closed = null;
@@ -283,7 +283,7 @@ class CTodo extends w2p_Core_BaseObject
 		$company = new CCompany;
 		$allowedCompanies = $company->getAllowedSQL($AppUI->user_id);
 
-		$q = new w2p_Database_Query;
+		$q = $this->_getQuery();
 		$q->addQuery('contact_id, contact_order_by');
 		$q->addQuery('contact_first_name, contact_last_name');
 		$q->addTable('contacts');
