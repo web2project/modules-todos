@@ -19,19 +19,16 @@ class CTodo extends w2p_Core_BaseObject
 	public $todo_status = 1;
 	public $todo_created = NULL;
 	public $todo_updated = NULL;
-	public $todo_closed = NULL; 
-	public $_tbl = 'todos';
-	public $_tbl_key = 'todo_id';
-	//TODO: support table prefixes
+	public $todo_closed = NULL;
 
 	public function __construct()
 	{
 		parent::__construct('todos', 'todo_id');
 	}
 
-	public function getClosedTodosForDateRange(w2p_Core_CAppUI $AppUI, $user_id = 0)
+	public function getClosedTodosForDateRange($user_id = 0)
     {
-		$user_id = ($user_id > 0) ? $user_id : $AppUI->user_id;
+		$user_id = ($user_id) ? $user_id : $this->_AppUI->user_id;
 
         $q = $this->_getQuery();
 		$q->addQuery('st.*');
@@ -47,31 +44,29 @@ class CTodo extends w2p_Core_BaseObject
         $q->leftJoin('contacts', 'c', 'c.contact_id = st.todo_related_to_contact_id');
 
         $projObj = new CProject();
-        $projObj->setAllowedSQL($AppUI->user_id, $q, null, 'p');
+        $projObj->setAllowedSQL($this->_AppUI->user_id, $q, null, 'p');
 
         $q->addOrder('st.todo_closed DESC, p.project_name, st.todo_title');
 
         return $q->loadList();
 	}
 
-	public function getTodosForDateRange(w2p_Core_CAppUI $AppUI, $dateRangeName, $user_id = 0, $project_id = 0, $contact_id = 0, $company_id = 0)
+	public function getTodosForDateRange($dateRangeName, $user_id = 0, $project_id = 0, $contact_id = 0, $company_id = 0)
 	{
-		$perms = $AppUI->acl();
-
         $today = date('Y-m-d 23:59:59');
-        $today = $AppUI->convertToSystemTZ($today);
+        $today = $this->_AppUI->convertToSystemTZ($today);
 
         $tomorrow = date('Y-m-d 23:59:59', strtotime('tomorrow'));
-        $tomorrow = $AppUI->convertToSystemTZ($tomorrow);
+        $tomorrow = $this->_AppUI->convertToSystemTZ($tomorrow);
 
         $dayAfterTomorrow = date('Y-m-d 23:59:59', strtotime('tomorrow +1 day'));
-        $dayAfterTomorrow = $AppUI->convertToSystemTZ($dayAfterTomorrow);
+        $dayAfterTomorrow = $this->_AppUI->convertToSystemTZ($dayAfterTomorrow);
 //TODO: this should grab the 'end of week' variable from CORE
         $thisSunday = date('Y-m-d 23:59:59', strtotime('this Sunday +1 day'));
-        $thisSunday = $AppUI->convertToSystemTZ($thisSunday);
+        $thisSunday = $this->_AppUI->convertToSystemTZ($thisSunday);
         
         $nextSunday = date('Y-m-d 23:59:59', strtotime('this Sunday +8 day'));
-        $nextSunday = $AppUI->convertToSystemTZ($nextSunday);
+        $nextSunday = $this->_AppUI->convertToSystemTZ($nextSunday);
 
         $q = $this->_getQuery();
 		$q->addQuery('st.*');
@@ -101,19 +96,19 @@ class CTodo extends w2p_Core_BaseObject
                 $q->addWhere("st.todo_due > '$nextSunday'");
 		}
 		$q->addWhere('st.todo_status = 1');
-        $q->addWhere("st.todo_user_id = ".(($user_id > 0) ? $user_id : $AppUI->user_id));
+        $q->addWhere("st.todo_user_id = ".(($user_id > 0) ? $user_id : $this->_AppUI->user_id));
 
         $q->addQuery('p.project_name, p.project_color_identifier, p.project_company');
         $q->leftJoin('projects', 'p', 'p.project_id = st.todo_project_id');
 
         $projObj = new CProject();
-        $projObj->setAllowedSQL($AppUI->user_id, $q, null, 'p');
-        if ($project_id > 0 && $perms->checkModuleItem('projects', 'view', $project_id)) {
+        $projObj->setAllowedSQL($this->_AppUI->user_id, $q, null, 'p');
+        if ($project_id > 0 && $this->_perms->checkModuleItem('projects', 'view', $project_id)) {
             $q->addWhere("st.todo_project_id = $project_id");
         }
 
-        if ($company_id > 0 && $perms->checkModuleItem('companies', 'view', $company_id)) {
-            $projects = CCompany::getProjects($AppUI, $company_id);
+        if ($company_id > 0 && $this->_perms->checkModuleItem('companies', 'view', $company_id)) {
+            $projects = CCompany::getProjects($this->_AppUI, $company_id);
             $project_id_string = '';
             foreach ($projects as $project) {
                 $project_id_string .= $project['project_id'].',';
@@ -122,7 +117,7 @@ class CTodo extends w2p_Core_BaseObject
             $q->addWhere("st.todo_project_id IN ($project_id_string)");
         }
 
-        if ($contact_id > 0 && $perms->checkModuleItem('contacts', 'view', $contact_id)) {
+        if ($contact_id > 0 && $this->_perms->checkModuleItem('contacts', 'view', $contact_id)) {
             $q->addWhere("st.todo_related_to_contact_id = $contact_id");
         }
 		$q->addOrder('st.todo_due, p.project_name, st.todo_title');
@@ -160,31 +155,22 @@ class CTodo extends w2p_Core_BaseObject
 		return $q->loadList();
 	} 
 
-	public function check()
-	{
-        $errorArray = array();
-        $baseErrorMsg = get_class($this) . '::store-check failed - ';
-
-        return $errorArray;
-	}
-
-	public function complete(w2p_Core_CAppUI $AppUI)
+	public function complete()
 	{
 		$this->load();
 		$this->todo_status = 0;
-		return $this->store($AppUI);
+		return $this->store();
 	}
 
-	public function delete(w2p_Core_CAppUI $AppUI)
+	public function delete()
 	{
 		$this->load();
 		$this->todo_status = -1;
-		return $this->store($AppUI);
+		return $this->store();
 	}
 
-	public function store(w2p_Core_CAppUI $AppUI)
+	public function store()
 	{
-        $perms = $AppUI->acl();
         $stored = false;
 
         $errorMsgArray = $this->check();
@@ -199,16 +185,16 @@ class CTodo extends w2p_Core_BaseObject
             $this->todo_closed = $q->dbfnNowWithTZ();
         }
         $this->todo_updated = $q->dbfnNowWithTZ();
-        $this->todo_due = $this->resolveTimeframeEnd($AppUI);
-        $this->todo_due = $AppUI->convertToSystemTZ($this->todo_due);
+        $this->todo_due = $this->resolveTimeframeEnd();
+        $this->todo_due = $this->_AppUI->convertToSystemTZ($this->todo_due);
 
-        if ($this->todo_id && $perms->checkModuleItem('todos', 'edit', $this->todo_id)) {
+        if ($this->todo_id && $this->_perms->checkModuleItem('todos', 'edit', $this->todo_id)) {
             if (($msg = parent::store())) {
                 return $msg;
             }
             $stored = true;
         }
-        if (0 == $this->todo_id && $perms->checkModuleItem('todos', 'add')) {
+        if (0 == $this->todo_id && $this->_perms->checkModuleItem('todos', 'add')) {
             $this->todo_created = $q->dbfnNowWithTZ();
             if (($msg = parent::store())) {
                 return $msg;
@@ -240,18 +226,14 @@ class CTodo extends w2p_Core_BaseObject
 	}
 
 	public function getTimeframes() {
-		global $AppUI;
-
-        $todoTimeframes = array('overdue' => $AppUI->_('Overdue'),
-            'today' => $AppUI->_('Today'), 'tomorrow' => $AppUI->_('Tomorrow'),
-            'this-week' => $AppUI->_('This Week'),
-            'next-week' => $AppUI->_('Next Week'), 'later' => $AppUI->_('Later'));
+        $todoTimeframes = array('overdue' => $this->_AppUI->_('Overdue'),
+            'today' => $this->_AppUI->_('Today'), 'tomorrow' => $this->_AppUI->_('Tomorrow'),
+            'this-week' => $this->_AppUI->_('This Week'),
+            'next-week' => $this->_AppUI->_('Next Week'), 'later' => $this->_AppUI->_('Later'));
 		return $todoTimeframes;
 	}
 
 	public function getCategories() {
-		global $AppUI;
-
         $todotype = w2PgetSysVal('TodoType');
         $todoCategories = array('Admin', 'Billing', 'Call', 'Config', 'Dev',
             'Email', 'Evaluation', 'Follow-up', 'Meeting', 'Personal',
@@ -259,7 +241,7 @@ class CTodo extends w2p_Core_BaseObject
         $todoCategories = (is_array($todotype)) ? $todotype : $todoCategories;
 
         foreach($todoCategories as $key => $category) {
-            $todoCategories[$key] = $AppUI->_($category);
+            $todoCategories[$key] = $this->_AppUI->_($category);
         }
         array_unshift($todoCategories, ' ');
 
@@ -278,10 +260,10 @@ class CTodo extends w2p_Core_BaseObject
 		return $projectList;
 	}
 
-	public function getContacts($AppUI) {
+	public function getContacts() {
 		//TODO: this should be converted to a core function
 		$company = new CCompany;
-		$allowedCompanies = $company->getAllowedSQL($AppUI->user_id);
+		$allowedCompanies = $company->getAllowedSQL($this->_AppUI->user_id);
 
 		$q = $this->_getQuery();
 		$q->addQuery('contact_id, contact_order_by');
@@ -289,7 +271,7 @@ class CTodo extends w2p_Core_BaseObject
 		$q->addTable('contacts');
 		$q->addWhere('
 			(contact_private=0
-				OR (contact_private=1 AND contact_owner=' . $AppUI->user_id . ')
+				OR (contact_private=1 AND contact_owner=' . $this->_AppUI->user_id . ')
 				OR contact_owner IS NULL OR contact_owner = 0
 			)');
 		$q->addWhere('contact_first_name IS NOT NULL');
@@ -304,7 +286,7 @@ class CTodo extends w2p_Core_BaseObject
 		return $allowedContacts;
 	}
 
-	protected function resolveTimeframeEnd(w2p_Core_CAppUI $AppUI)
+	protected function resolveTimeframeEnd()
 	{
 
         switch ($this->todo_due) {
