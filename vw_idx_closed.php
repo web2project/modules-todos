@@ -14,7 +14,7 @@ $todoCategories = $todo->getCategories();
         <td valign="top">
             <table width="100%">
             <?php
-                $todoList = $todo->getClosedTodosForDateRange($AppUI, $owner);
+                $todoList = $todo->getClosedTodosForDateRange($owner);
                 $todoCount = count($todoList);
 
                 if ($todoCount > 0)

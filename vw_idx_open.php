@@ -27,7 +27,7 @@ $todoTimeframes = $todo->getTimeframes();
                     $todoTimeframes = $todo->getTimeframes();
                     $todoCategories = $todo->getCategories();
                     foreach ($todoTimeframes as $dateRangeName => $daterange) {
-                        $todoList = $todo->getTodosForDateRange($AppUI, $dateRangeName, $owner, $project_id, $contact_id, $company_id);
+                        $todoList = $todo->getTodosForDateRange($dateRangeName, $owner, $project_id, $contact_id, $company_id);
                         if (count($todoList) > 0) {
                             echo '<tr><td colspan="3"><strong>'.$AppUI->_($daterange).'</strong></td></tr>';
                             foreach ($todoList as $todoItem) {

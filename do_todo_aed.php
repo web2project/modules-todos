@@ -16,9 +16,9 @@ if (!$obj->bind($_POST)) {
 
 $action = ($del) ? 'deleted' : 'stored';
 if ($complete) {
-    $result = $obj->complete($AppUI);
+    $result = $obj->complete();
 } else {
-    $result = ($del) ? $obj->delete($AppUI) : $obj->store($AppUI);
+    $result = ($del) ? $obj->delete() : $obj->store();
 }
 
 if (is_array($result)) {

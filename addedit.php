@@ -96,7 +96,7 @@ global $cal_sdf;
         <tr>
             <td class="label"><?php echo $AppUI->_('Related to which person?');?>:<br />
                 <?php
-                    $availableContacts = $todo->getContacts($AppUI);
+                    $availableContacts = $todo->getContacts();
                     $contactId = ($todo->todo_related_to_contact_id > 0) ? $todo->todo_related_to_contact_id : $contact_id;
                     echo arraySelect( $availableContacts, 'todo_related_to_contact_id', 'size="1" class="text"', $contactId);
                 ?>
