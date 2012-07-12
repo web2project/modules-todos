@@ -125,7 +125,8 @@ class CTodo extends w2p_Core_BaseObject
 		return $q->loadList();
 	}
 
-	public function getOpenTodoItems($userId, $days = 30) {
+	public function getOpenTodoItems($userId, $days = 30)
+    {
 		/*
 		 *  The  "description" field purposely not included as we don't have that
 		 * field on this table.  This list of fields - id, name, description,
@@ -158,7 +159,10 @@ class CTodo extends w2p_Core_BaseObject
 	public function complete()
 	{
 		$this->load();
-		$this->todo_status = 0;
+        $q = $this->_getQuery();
+        $this->todo_closed = $q->dbfnNowWithTZ();
+        $this->todo_status = 0;
+
 		return $this->store();
 	}
 
@@ -166,45 +170,31 @@ class CTodo extends w2p_Core_BaseObject
 	{
 		$this->load();
 		$this->todo_status = -1;
+
 		return $this->store();
 	}
 
-	public function store()
-	{
-        $stored = false;
-
-        $errorMsgArray = $this->check();
-        if (count($errorMsgArray) > 0) {
-          return $errorMsgArray;
-        }
+    protected function hook_preCreate()
+    {
         $q = $this->_getQuery();
-		$this->w2PTrimAll();
-
+        $this->todo_created = $q->dbfnNowWithTZ();
         $this->todo_closed = null;
-        if ($this->todo_status == 0) {
-            $this->todo_closed = $q->dbfnNowWithTZ();
-        }
+
+        parent::hook_preCreate();
+    }
+
+    protected function  hook_preStore()
+    {
+        $q = $this->_getQuery();
         $this->todo_updated = $q->dbfnNowWithTZ();
         $this->todo_due = $this->resolveTimeframeEnd();
         $this->todo_due = $this->_AppUI->convertToSystemTZ($this->todo_due);
 
-        if ($this->todo_id && $this->_perms->checkModuleItem('todos', 'edit', $this->todo_id)) {
-            if (($msg = parent::store())) {
-                return $msg;
-            }
-            $stored = true;
-        }
-        if (0 == $this->todo_id && $this->_perms->checkModuleItem('todos', 'add')) {
-            $this->todo_created = $q->dbfnNowWithTZ();
-            if (($msg = parent::store())) {
-                return $msg;
-            }
-            $stored = true;
-        }
-        return $stored;
-	}
+        parent::hook_preStore();
+    }
 
-	public function renderTimeframe() {
+	public function renderTimeframe()
+    {
 		$dateInfo = array();
 		
 		if ($this->todo_due != '') {
@@ -225,7 +215,8 @@ class CTodo extends w2p_Core_BaseObject
 		return $dateInfo;
 	}
 
-	public function getTimeframes() {
+	public function getTimeframes()
+    {
         $todoTimeframes = array('overdue' => $this->_AppUI->_('Overdue'),
             'today' => $this->_AppUI->_('Today'), 'tomorrow' => $this->_AppUI->_('Tomorrow'),
             'this-week' => $this->_AppUI->_('This Week'),
@@ -233,34 +224,20 @@ class CTodo extends w2p_Core_BaseObject
 		return $todoTimeframes;
 	}
 
-	public function getCategories() {
-        $todotype = w2PgetSysVal('TodoType');
-        $todoCategories = array('Admin', 'Billing', 'Call', 'Config', 'Dev',
-            'Email', 'Evaluation', 'Follow-up', 'Meeting', 'Personal',
-            'Pitch/Proposal', 'Research', 'Writing');
-        $todoCategories = (is_array($todotype)) ? $todotype : $todoCategories;
-
-        foreach($todoCategories as $key => $category) {
-            $todoCategories[$key] = $this->_AppUI->_($category);
-        }
-        array_unshift($todoCategories, ' ');
-
-		return $todoCategories;
-	}
-
-	public function getAllowedProjects($user_id) {
-		
+	public function getAllowedProjects($user_id)
+    {
         $project = new CProject();
         $projects = $project->getAllowedProjects($user_id);
 
         foreach ($projects as $project_id => $project_info) {
-          $projectList[$project_id] = $project_info['project_name'];
+            $projectList[$project_id] = $project_info['project_name'];
         }
 
 		return $projectList;
 	}
 
-	public function getContacts() {
+	public function getContacts()
+    {
 		//TODO: this should be converted to a core function
 		$company = new CCompany;
 		$allowedCompanies = $company->getAllowedSQL($this->_AppUI->user_id);
@@ -328,11 +305,13 @@ class CTodo extends w2p_Core_BaseObject
 		return $endDate.' 23:59:59';
 	}
 
-	public function hook_calendar($userId) {
+	public function hook_calendar($userId)
+    {
 		return $this->getOpenTodoItems($userId);
 	}
 
-    public function hook_search() {
+    public function hook_search()
+    {
         $search['table'] = 'todos';
         $search['table_alias'] = 't';
         $search['table_module'] = 'todos';
