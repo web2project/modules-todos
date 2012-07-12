@@ -1,3 +1,12 @@
 #todos_list {
-  background-color: #fff;
+    background-color: #fff;
+}
+.skyscraper_label, .label
+{
+    font-weight: bold;
+    text-align: left;
+}
+
+#addTodoItem td {
+    background: white;
 }

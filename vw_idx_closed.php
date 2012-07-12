@@ -9,17 +9,10 @@ $todo = new CTodo();
 $todoCategories = $todo->getCategories();
 //TODO: this whole table mess should be converted over to nice divs
 ?>
-<style>
-.skyscraper_label
-{
-    font-weight: bold;
-    text-align: left;
-}
-</style>
-<table  width="100%">
+<table width="100%">
     <tr>
         <td valign="top">
-            <table>
+            <table width="100%">
             <?php
                 $todoList = $todo->getClosedTodosForDateRange($AppUI, $owner);
                 $todoCount = count($todoList);

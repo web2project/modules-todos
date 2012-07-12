@@ -14,13 +14,7 @@ $todoTimeframes = $todo->getTimeframes();
 ?>
 <script src="./modules/todos/todos.js" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css" href="./modules/todos/todos.css" />
-<style>
-.skyscraper_label
-{
-    font-weight: bold;
-    text-align: left;
-}
-</style>
+
 <table width="100%">
     <tr>
         <td valign="top">
