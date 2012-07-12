@@ -1,4 +1,4 @@
-TodoList v2.0
+TodoList v1.2
 CaseySoftware, LLC
 webmaster@caseysoftware.com
 
@@ -19,8 +19,11 @@ COMPATIBLE VERSIONS
 Changelog
 =====================================
 
-2.0 Updated to use web2project v3.0 functionality
-- 
+1.2 Updated to use web2project v3.0 functionality
+-  Various css tweaks to simplify the styles;
+-  Removed the variable passing rendered unneeded in web2project v3.0+;
+-  Removed the old store() method in favor of using our pre/post hooks;
+
 
 1.1 Minor configuration tweaks
 -  On deleting an item, the screen scrolls up to the top of the page;
@@ -31,6 +34,8 @@ KNOWN ISSUES
 =====================================
 
 Open Issues:
+
+*  The column names don't follow our naming conventions, so the HTMLHelper won't be useful here.
 
 *  The Add Edit form is static and attached to the top of the page by default, this should be moved to track the user.
 

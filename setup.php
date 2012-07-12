@@ -72,8 +72,14 @@ class CSetupTodos extends w2p_Core_Setup
             case '1.0.0':
             case '1.0.1':
                 $this->addCategories();
-            case '1.2.0':
-            case '2.0':                                         //current version
+            case '1.2.0':                                       //current version
+            case '2.0':
+                //TODO: rename todo_title                   to  todo_name
+                //TODO: rename todo_due                     to  todo_due_date
+                //TODO: rename todo_project_id              to  todo_project
+                //TODO: rename todo_user_id                 to  todo_user
+                //TODO: rename todo_category_id             to  todo_category
+                //TODO: rename todo_related_to_contact_id   to  todo_related_to_contact_id
             default:
 				//do nothing
 		}
