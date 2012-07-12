@@ -1,36 +1,32 @@
-TodoList v1.1.0
+TodoList v2.0
 CaseySoftware, LLC
 webmaster@caseysoftware.com
 
-The TodoList module handles simple todo management for web2project.
+** This module will not work with any version of web2project prior to v3.0-pre! **
 
-LICENSE
-
-=====================================
-
-The TodoList was built by CaseySoftware, LLC and is released here under the Clear BSD license.
-
-Copyright (c) 2009-2012 CaseySoftware, LLC <webmaster@caseysoftware.com>
-
-Special credit and acknowledgement goes to:
-
--  Former dotProject Development Team member and current web2project Development Team lead D. Keith Casey, Jr. <caseydk@users.sourceforge.net> of CaseySoftware for building this module;
+The TodoList module handles simple todo management for web2project. These todo items are usually things that are either done or not done in minutes as opposed to hours or days. Therefore, they don't make sense as Tasks. These items can optionally be attached to specific Projects, Contacts, or both.
 
 COMPATIBLE VERSIONS
 
 =====================================
 
-*  v1.1 has been validated to work with the current Web2project v2.0. It is not compatible with any version of dotProject and no future releases will support dotProject.
+*  v2.0+ of this module has been validated to work with web2project v3.0-pre and above and is known to be incompatible with earlier releases.
 
-CLOSED/RESOLVED ISSUES
+*  v1.1 has been validated to work with the current Web2project v2.0 and above.
 
+*  This won't work with dotProject, don't even bother trying.
+
+Changelog
 =====================================
 
-*  v1.1 - On deleting an item, the screen scrolls up to the top of the page.
+2.0 Updated to use web2project v3.0 functionality
+- 
 
-*  v1.1 - The Category List is now stored in the System Lookup Values as opposed to being hardcoded in the CTodo class.
+1.1 Minor configuration tweaks
+-  On deleting an item, the screen scrolls up to the top of the page;
+-  The Category List is now stored in the System Lookup Values as opposed to being hardcoded in the CTodo class;
 
-KNOWN/PREVIOUS ISSUES
+KNOWN ISSUES
 
 =====================================
 
