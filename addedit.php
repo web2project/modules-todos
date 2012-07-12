@@ -1,6 +1,6 @@
 <?php 
 if (!defined('W2P_BASE_DIR')) {
-  die('You should not access this file directly.');
+    die('You should not access this file directly.');
 }
 
 $todo_id = (int) w2PgetParam($_GET, 'todo_id', 0);
@@ -39,19 +39,21 @@ global $cal_sdf;
         $('todo_title').focus();
     });
 </script>
-<table border="0" cellpadding="4" cellspacing="0" width="100%" class="std">
-    <form name="addTodoItem" id="addTodoItem" action="?m=todos" method="post">
-        <input type="hidden" name="dosql" value="do_todo_aed" />
-        <input type="hidden" name="del" value="0" />
-        <input type="hidden" name="todo_id" value="<?php echo $todo_id;?>" />
-        <input type="hidden" name="return_module" value="<?php echo $m; ?>" />
+
+<form name="addTodoItem" id="addTodoItem" action="?m=todos" method="post">
+    <input type="hidden" name="dosql" value="do_todo_aed" />
+    <input type="hidden" name="del" value="0" />
+    <input type="hidden" name="todo_id" value="<?php echo $todo_id;?>" />
+    <input type="hidden" name="return_module" value="<?php echo $m; ?>" />
+
+    <table border="0" cellpadding="4" cellspacing="0" width="100%" class="std">
         <tr>
-            <td class="skyscraper_label"><?php echo $AppUI->_('Add a todo');?>:<br />
+            <td class="label"><?php echo $AppUI->_('Add a todo');?>:<br />
                 <input type="text" class="text" size="35" name="todo_title" id="todo_title" value="<?php echo htmlentities($todo->todo_title, ENT_QUOTES);  ?>" maxlength="255">
             </td>
         </tr>
         <tr>
-            <td class="skyscraper_label"><?php echo $AppUI->_('When is it due?');?><br />
+            <td class="label"><?php echo $AppUI->_('When is it due?');?><br />
                 <?php
                     array_shift($todoTimeframes);
                     $todoTimeframes['other'] = 'Other';
@@ -63,11 +65,11 @@ global $cal_sdf;
                     <img src="<?php echo w2PfindImage('calendar.gif'); ?>" width="24" height="12" alt="<?php echo $AppUI->_('Calendar'); ?>" border="0" />
                 </a>
                 <input type="hidden" name="display_todo_date" id="display_todo_date" value="<?php echo $dateInfo['cleanFormat']; ?>" />
-                <input type="text" name="todo_date" id="todo_date" size="11" value="<?php echo $dateInfo['displayFormat']; ?>" />
+                <input type="text" class="text" name="todo_date" id="todo_date" size="11" value="<?php echo $dateInfo['displayFormat']; ?>" />
             </td>
         </tr>
         <tr>
-            <td class="skyscraper_label"><?php echo $AppUI->_('Who\'s Responsible?');?>:<br />
+            <td class="label"><?php echo $AppUI->_('Who\'s Responsible?');?>:<br />
                 <?php
                     $availableAssignees = $AppUI->acl()->getPermittedUsers();
                     $availableAssignees = array(0 => '') + $availableAssignees;
@@ -83,7 +85,7 @@ global $cal_sdf;
             </td>
         </tr>
         <tr>
-            <td class="skyscraper_label"><?php echo $AppUI->_('Related to which project?');?>:<br />
+            <td class="label"><?php echo $AppUI->_('Related to which project?');?>:<br />
                 <?php
                     $projectId = ($todo->todo_project_id > 0) ? $todo->todo_project_id : $project_id;
                     $projectList =  array(0 => '') + $todo->getAllowedProjects($AppUI->user_id);
@@ -92,7 +94,7 @@ global $cal_sdf;
             </td>
         </tr>
         <tr>
-            <td class="skyscraper_label"><?php echo $AppUI->_('Related to which person?');?>:<br />
+            <td class="label"><?php echo $AppUI->_('Related to which person?');?>:<br />
                 <?php
                     $availableContacts = $todo->getContacts($AppUI);
                     $contactId = ($todo->todo_related_to_contact_id > 0) ? $todo->todo_related_to_contact_id : $contact_id;
@@ -101,17 +103,17 @@ global $cal_sdf;
             </td>
         </tr>
         <tr>
-            <td class="skyscraper_label"><?php echo $AppUI->_('Choose a Category');?>:<br />
+            <td class="label"><?php echo $AppUI->_('Choose a Category');?>:<br />
                 <?php
                     echo arraySelect( $todo->getCategories(), 'todo_category_id', 'size="1" class="text"', (!empty($todo->todo_category_id) ? $todo->todo_category_id : '0') );
                 ?>
             </td>
         </tr>
         <tr>
-            <td class="skyscraper_label">
+            <td class="label">
                 <input class="text" type="submit" value="save!" id="submitter">
                 <div id="log"><div id="log_res"><!-- spanner --></div></div>
             </td>
         </tr>
-    </form>
-</table>
+    </table>
+</form>
