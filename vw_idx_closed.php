@@ -6,7 +6,7 @@ if (!defined('W2P_BASE_DIR'))
 global $AppUI, $project_id, $contact_id, $company_id, $tab, $owner;
 
 $todo = new CTodo();
-$todoCategories = $todo->getCategories();
+$todoCategories = w2PgetSysVal('TodoType');
 //TODO: this whole table mess should be converted over to nice divs
 ?>
 <table width="100%">

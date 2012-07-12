@@ -25,7 +25,7 @@ $todoTimeframes = $todo->getTimeframes();
                 <table id="todos_list">
                     <?php
                     $todoTimeframes = $todo->getTimeframes();
-                    $todoCategories = $todo->getCategories();
+                    $todoCategories = w2PgetSysVal('TodoType');
                     foreach ($todoTimeframes as $dateRangeName => $daterange) {
                         $todoList = $todo->getTodosForDateRange($dateRangeName, $owner, $project_id, $contact_id, $company_id);
                         if (count($todoList) > 0) {

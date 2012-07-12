@@ -105,7 +105,8 @@ global $cal_sdf;
         <tr>
             <td class="label"><?php echo $AppUI->_('Choose a Category');?>:<br />
                 <?php
-                    echo arraySelect( $todo->getCategories(), 'todo_category_id', 'size="1" class="text"', (!empty($todo->todo_category_id) ? $todo->todo_category_id : '0') );
+                    $todoCategories = w2PgetSysVal('TodoType');
+                    echo arraySelect( $todoCategories, 'todo_category_id', 'size="1" class="text"', (!empty($todo->todo_category_id) ? $todo->todo_category_id : '0') );
                 ?>
             </td>
         </tr>
