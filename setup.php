@@ -11,7 +11,7 @@ if (!defined('W2P_BASE_DIR')){
  */
 
 $config = array();
-$config['mod_name']        = 'TodoList';
+$config['mod_name']        = 'Todos';
 $config['mod_version']     = '1.2.0';
 $config['mod_directory']   = 'todos';               // tell web2project where to find this module
 $config['mod_setup_class'] = 'CSetupTodos';         // the name of the PHP setup class (used below)
