@@ -175,24 +175,25 @@ class CTodo extends w2p_Core_BaseObject
 		return $this->store();
 	}
 
-    protected function hook_preCreate()
-    {
-        $q = $this->_getQuery();
-        $this->todo_created = $q->dbfnNowWithTZ();
-        $this->todo_closed = null;
-
-        parent::hook_preCreate();
-    }
-
-    protected function  hook_preStore()
-    {
+    public function hook_preStore() {
+        parent::hook_preStore();
+        
         $q = $this->_getQuery();
         $this->todo_updated = $q->dbfnNowWithTZ();
-
-        $this->todo_due = $this->resolveTimeframeEnd();
+        $this->todo_due = $this->resolveTimeframeEnd($this->_AppUI);
         $this->todo_due = $this->_AppUI->convertToSystemTZ($this->todo_due);
 
-        parent::hook_preStore();
+        $this->todo_closed = null;
+        if ($this->todo_status == 0) {
+            $this->todo_closed = $q->dbfnNowWithTZ();
+        }
+    }
+
+    public function hook_preCreate() {
+        parent::hook_preCreate();
+
+        $q = $this->_getQuery();
+        $this->todo_created = $q->dbfnNowWithTZ();
     }
 
 	public function renderTimeframe()
