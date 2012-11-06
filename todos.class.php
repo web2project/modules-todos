@@ -159,6 +159,7 @@ class CTodo extends w2p_Core_BaseObject
 	public function complete()
 	{
 		$this->load();
+
         $q = $this->_getQuery();
         $this->todo_closed = $q->dbfnNowWithTZ();
         $this->todo_status = 0;
@@ -187,6 +188,7 @@ class CTodo extends w2p_Core_BaseObject
     {
         $q = $this->_getQuery();
         $this->todo_updated = $q->dbfnNowWithTZ();
+
         $this->todo_due = $this->resolveTimeframeEnd();
         $this->todo_due = $this->_AppUI->convertToSystemTZ($this->todo_due);
 
@@ -226,6 +228,7 @@ class CTodo extends w2p_Core_BaseObject
 
 	public function getAllowedProjects($user_id)
     {
+
         $project = new CProject();
         $projects = $project->getAllowedProjects($user_id);
 
