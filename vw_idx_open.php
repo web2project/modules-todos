@@ -46,12 +46,20 @@ $todoTimeframes = $todo->getTimeframes();
                                             <?php
                                                 echo $AppUI->formatTZAwareTime($todoItem['todo_due'], '%b %d').' - ';
                                             } ?>
+                                         </td>
+                                    <td>
                                         <?php echo w2p_textarea($todoItem['todo_title']); ?>
+                                         </td>
+                                    <td>
+                                        
                                         <?php if ($todoItem['todo_project_id'] > 0) { ?>
                                             <span style="padding: 2px; background-color: #<?php echo $todoItem['project_color_identifier']; ?>;">
                                                 <a href="./index.php?m=projects&amp;a=view&amp;project_id=<?php echo $todoItem['todo_project_id']; ?>" style="color: <?php echo bestColor($todoItem['project_color_identifier']) ?>;"><?php echo $todoItem['project_name']; ?></a>
                                             </span>
                                         <?php } ?>
+                                         </td>
+                                    <td>
+
                                         <?php if ($todoItem['todo_related_to_contact_id'] > 0) {
                                             $contact = new CContact();
                                             $contact->load($todoItem['todo_related_to_contact_id']);
