@@ -7,7 +7,7 @@ global $AppUI, $project_id, $contact_id, $company_id;
 
 $perms = $AppUI->acl();
 if (!$perms->checkModuleItem('todos', 'access')) {
-    $AppUI->redirect('m=public&a=access_denied');
+    $AppUI->redirect(ACCESS_DENIED);
 }
 
 $todolistTab = $AppUI->processIntState('todoListIdxTab', $_GET, 'tab', 0);

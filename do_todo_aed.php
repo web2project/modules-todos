@@ -41,5 +41,5 @@ if ($result) {
     }
     $AppUI->redirect($success);
 } else {
-    $AppUI->redirect('m=public&a=access_denied');
+    $AppUI->redirect(ACCESS_DENIED);
 }
