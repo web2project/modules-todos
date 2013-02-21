@@ -3,16 +3,16 @@ if (!defined('W2P_BASE_DIR')){
   die('You should not access this file directly.');
 }
 /**
- * Name:			TodoList
- * Directory: todolist
- * Type:			user
- * UI Name:		todolist
- * UI Icon: 	?
+ * Name:        TodoList
+ * Directory:   todolist
+ * Type:        user
+ * UI Name:     todolist
+ * UI Icon:     ?
  */
 
 $config = array();
 $config['mod_name']        = 'Todos';
-$config['mod_version']     = '1.2.0';
+$config['mod_version']     = '1.3.0';
 $config['mod_directory']   = 'todos';               // tell web2project where to find this module
 $config['mod_setup_class'] = 'CSetupTodos';         // the name of the PHP setup class (used below)
 $config['mod_type']        = 'user';                // 'core' for modules distributed with w2p by standard, 'user' for additional modules
@@ -72,7 +72,8 @@ class CSetupTodos extends w2p_Core_Setup
             case '1.0.0':
             case '1.0.1':
                 $this->addCategories();
-            case '1.2.0':                                       //current version
+            case '1.2.0':
+            case '1.3.0':                                       //current version
             case '2.0':
                 //TODO: rename todo_title                   to  todo_name
                 //TODO: rename todo_due                     to  todo_due_date

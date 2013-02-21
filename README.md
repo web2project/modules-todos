@@ -10,7 +10,7 @@ COMPATIBLE VERSIONS
 
 =====================================
 
-*  v2.0+ of this module has been validated to work with web2project v3.0-pre and above and is known to be incompatible with earlier releases.
+*  v1.3+ of this module has been validated to work with web2project v3.0-pre and above and is known to be incompatible with earlier releases.
 
 *  v1.1 has been validated to work with the current Web2project v2.0 and above.
 
@@ -18,6 +18,10 @@ COMPATIBLE VERSIONS
 
 Changelog
 =====================================
+
+1.3 Updated to use all of the new web2project v3.0 functionality
+-  This is incompatible with any version before pre-3.0;
+-  Makes use of all pre/post hooks;
 
 1.2 Updated to use web2project v3.0 functionality
 -  Various css tweaks to simplify the styles;
