@@ -12,7 +12,7 @@ if (!defined('W2P_BASE_DIR')){
 
 $config = array();
 $config['mod_name']        = 'Todos';
-$config['mod_version']     = '1.3.0';
+$config['mod_version']     = '1.4';
 $config['mod_directory']   = 'todos';               // tell web2project where to find this module
 $config['mod_setup_class'] = 'CSetupTodos';         // the name of the PHP setup class (used below)
 $config['mod_type']        = 'user';                // 'core' for modules distributed with w2p by standard, 'user' for additional modules
@@ -24,7 +24,7 @@ $config['mod_main_class']  = 'CTodo';
 
 $config['permissions_item_table'] = 'todos';
 $config['permissions_item_field'] = 'todo_id';
-$config['permissions_item_label'] = 'todo_title';
+$config['permissions_item_label'] = 'todo_name';
 
 $config['requirements'] = array(
     array('require' => 'web2project',   'comparator' => '>=', 'version' => '3')
@@ -44,16 +44,15 @@ class CSetupTodos extends w2p_Core_Setup
         $q->createTable('todos');
         $sql = '(
             `todo_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-            `todo_title` text NOT NULL,
-            `todo_due` datetime NOT NULL DEFAULT \'2038-01-01\',
-            `todo_project_id` int(10) NOT NULL DEFAULT 0,
-            `todo_user_id` int(10) NOT NULL DEFAULT 0,
-            `todo_category_id` int(10) NOT NULL DEFAULT 0,
-            `todo_related_to_contact_id` int(10) NOT NULL DEFAULT 0,
+            `todo_name` text NOT NULL,
+            `todo_due_date` datetime NOT NULL DEFAULT \'2038-01-01\',
+            `todo_project` int(10) NOT NULL DEFAULT 0,
+            `todo_owner` int(10) NOT NULL DEFAULT 0,
+            `todo_category` int(10) NOT NULL DEFAULT 0,
+            `todo_contact` int(10) NOT NULL DEFAULT 0,
             `todo_status` int(1) NOT NULL DEFAULT 1,
             `todo_created` datetime NOT NULL,
             `todo_updated` datetime NOT NULL,
-            `todo_closed` datetime NOT NULL,
             PRIMARY KEY  (`todo_id`))
             ENGINE=MyISAM DEFAULT CHARSET=utf8 ';
         $q->createDefinition($sql);
@@ -71,16 +70,12 @@ class CSetupTodos extends w2p_Core_Setup
             case '0.5.0':
             case '1.0.0':
             case '1.0.1':
-                $this->addCategories();
+                $this->_convertCategoriesToSysvals();
             case '1.2.0':
             case '1.3.0':                                       //current version
+                $this->_renameFieldsToMatchConventions();
             case '2.0':
-                //TODO: rename todo_title                   to  todo_name
-                //TODO: rename todo_due                     to  todo_due_date
-                //TODO: rename todo_project_id              to  todo_project
-                //TODO: rename todo_user_id                 to  todo_user
-                //TODO: rename todo_category_id             to  todo_category
-                //TODO: rename todo_related_to_contact_id   to  todo_related_to_contact_id
+                
             default:
 				//do nothing
 		}
@@ -101,7 +96,7 @@ class CSetupTodos extends w2p_Core_Setup
         return parent::remove();
 	}
 
-    private function addCategories()
+    private function _convertCategoriesToSysvals()
     {
         $i = 1;
         $todoCategories = array('Admin', 'Billing', 'Call', 'Config', 'Dev',
@@ -119,5 +114,33 @@ class CSetupTodos extends w2p_Core_Setup
             $i++;
         }
         return true;
+    }
+
+    private function _renameFieldsToMatchConventions()
+    {
+        $q = $this->_getQuery();
+        $q->alterTable('todos');
+        $q->addField('todo_name', 'text');
+        $q->addField('todo_due_date', "datetime NOT NULL DEFAULT '2038-01-01'");
+        $q->addField('todo_project', 'int(10) NOT NULL DEFAULT 0');
+        $q->addField('todo_owner', 'int(10) NOT NULL DEFAULT 0');
+        $q->addField('todo_category', 'int(10) NOT NULL DEFAULT 0');
+        $q->addField('todo_contact', 'int(10) NOT NULL DEFAULT 0');
+        $q->exec();
+
+        $convert = array('todo_title' => 'todo_name',
+            'todo_due' => 'todo_due_date',
+            'todo_project_id' => 'todo_project',
+            'todo_user_id' => 'todo_owner',
+            'todo_category_id' => 'todo_category',
+            'todo_related_to_contact_id' => 'todo_contact',
+        );
+
+        foreach($convert as $from => $to) {
+            $q->clear();
+            $q->addTable('todos');
+            $q->addUpdate($to, $from, false, true);
+            $q->exec();
+        }
     }
 }
