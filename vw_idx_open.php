@@ -41,7 +41,7 @@ $todoTimeframes = $todo->getTimeframes();
                                         <input type="checkbox" onClick="markItemComplete(<?php echo $todoItem['todo_id']; ?>)" />
                                     </td>
                                     <td>
-                                        <em><?php echo $AppUI->_($todoCategories[$todoItem['todo_category_id']]); ?></em>
+                                        <em><?php echo $AppUI->_($todoCategories[$todoItem['todo_category']]); ?></em>
                                         <?php if (in_array($dateRangeName, array('overdue', 'later')) && date('Y', strtotime($todoItem['todo_due'])) != 2020) { ?>
                                             <?php
                                                 echo $AppUI->formatTZAwareTime($todoItem['todo_due'], '%b %d').' - ';
@@ -52,17 +52,17 @@ $todoTimeframes = $todo->getTimeframes();
                                          </td>
                                     <td>
                                         
-                                        <?php if ($todoItem['todo_project_id'] > 0) { ?>
+                                        <?php if ($todoItem['todo_project'] > 0) { ?>
                                             <span style="padding: 2px; background-color: #<?php echo $todoItem['project_color_identifier']; ?>;">
-                                                <a href="./index.php?m=projects&amp;a=view&amp;project_id=<?php echo $todoItem['todo_project_id']; ?>" style="color: <?php echo bestColor($todoItem['project_color_identifier']) ?>;"><?php echo $todoItem['project_name']; ?></a>
+                                                <a href="./index.php?m=projects&amp;a=view&amp;project_id=<?php echo $todoItem['todo_project']; ?>" style="color: <?php echo bestColor($todoItem['project_color_identifier']) ?>;"><?php echo $todoItem['project_name']; ?></a>
                                             </span>
                                         <?php } ?>
                                          </td>
                                     <td>
 
-                                        <?php if ($todoItem['todo_related_to_contact_id'] > 0) {
+                                        <?php if ($todoItem['todo_contact'] > 0) {
                                             $contact = new CContact();
-                                            $contact->load($todoItem['todo_related_to_contact_id']);
+                                            $contact->load($todoItem['todo_contact']);
                                             ?>&nbsp;(Re: <a href="./index.php?m=contacts&amp;a=view&amp;contact_id=<?php echo $contact->contact_id; ?>"><?php echo $contact->contact_first_name; ?> <?php echo $contact->contact_last_name; ?></a> <a href="mailto:<?php echo $contact->contact_email; ?>"><img border="0" src="<?php echo w2PfindImage('stock_attach-16.png'); ?>" /></a>)<?php
                                         } ?>
                                     </td>

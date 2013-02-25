@@ -30,10 +30,10 @@ if ($result) {
     $AppUI->setMsg('Todos '.$action, UI_MSG_OK, true);
     switch($return_module) {
         case 'projects':
-            $success = 'm=projects&a=view&project_id='.$obj->todo_project_id;
+            $success = 'm=projects&a=view&project_id='.$obj->todo_project;
             break;
         case 'contacts':
-            $success = 'm=contacts&a=view&contact_id='.$obj->todo_related_to_contact_id;
+            $success = 'm=contacts&a=view&contact_id='.$obj->todo_contact;
             break;
         default:
             $success = 'm=todos';

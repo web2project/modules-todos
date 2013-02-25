@@ -17,7 +17,7 @@ global $cal_sdf;
     function setDate( frm_name, f_date ) {
         fld_date = eval( 'document.' + frm_name + '.' + f_date );
         fld_real_date = eval( 'document.' + frm_name + '.' + 'display_' + f_date );
-        document.getElementById('todo_due').value = 'other';
+        document.getElementById('todo_due_date').value = 'other';
         fld_date.style.width = '10';
         fld_date.style.border = '1';
 
@@ -49,7 +49,7 @@ global $cal_sdf;
     <table border="0" cellpadding="4" cellspacing="0" width="100%" class="std">
         <tr>
             <td class="label"><?php echo $AppUI->_('Add a todo');?>:<br />
-                <input type="text" class="text" size="35" name="todo_title" id="todo_title" value="<?php echo htmlentities($todo->todo_title, ENT_QUOTES);  ?>" maxlength="255">
+                <input type="text" class="text" size="35" name="todo_name" id="todo_name" value="<?php echo htmlentities($todo->todo_name, ENT_QUOTES);  ?>" maxlength="255">
             </td>
         </tr>
         <tr>
@@ -59,7 +59,7 @@ global $cal_sdf;
                     $todoTimeframes['other'] = 'Other';
 
                     $dateInfo = $todo->renderTimeframe();
-                    echo arraySelect( $todoTimeframes, 'todo_due', 'size="1" class="text"', $dateInfo['displayName']);
+                    echo arraySelect( $todoTimeframes, 'todo_due_date', 'size="1" class="text"', $dateInfo['displayName']);
                 ?> or
                 <a onclick="return showCalendar('todo_date', '<?php echo $df ?>', 'addTodoItem', null, true)" href="javascript: void(0);">
                     <img src="<?php echo w2PfindImage('calendar.gif'); ?>" width="24" height="12" alt="<?php echo $AppUI->_('Calendar'); ?>" border="0" />
@@ -74,10 +74,10 @@ global $cal_sdf;
                     $availableAssignees = $AppUI->acl()->getPermittedUsers();
                     $availableAssignees = array(0 => '') + $availableAssignees;
                     if (count($availableAssignees) > 1) {
-                        echo arraySelect( $availableAssignees, 'todo_user_id', 'size="1" class="text"', ($todo->todo_user_id ? $todo->todo_user_id : $AppUI->user_id) );
+                        echo arraySelect( $availableAssignees, 'todo_user', 'size="1" class="text"', ($todo->todo_user ? $todo->todo_user : $AppUI->user_id) );
                     } else {
                         ?>
-                        <input type="hidden" name="todo_user_id" value="0" />
+                        <input type="hidden" name="todo_user" value="0" />
                         <em><?php echo $AppUI->_('No assignees available');?></em>
                         <?php
                     }
@@ -87,9 +87,9 @@ global $cal_sdf;
         <tr>
             <td class="label"><?php echo $AppUI->_('Related to which project?');?>:<br />
                 <?php
-                    $projectId = ($todo->todo_project_id > 0) ? $todo->todo_project_id : $project_id;
+                    $projectId = ($todo->todo_project > 0) ? $todo->todo_project : $project_id;
                     $projectList =  array(0 => '') + $todo->getAllowedProjects($AppUI->user_id);
-                    echo arraySelect($projectList, 'todo_project_id', 'size="1" class="text"', $projectId);
+                    echo arraySelect($projectList, 'todo_project', 'size="1" class="text"', $projectId);
                 ?>
             </td>
         </tr>
@@ -97,8 +97,8 @@ global $cal_sdf;
             <td class="label"><?php echo $AppUI->_('Related to which person?');?>:<br />
                 <?php
                     $availableContacts = $todo->getContacts();
-                    $contactId = ($todo->todo_related_to_contact_id > 0) ? $todo->todo_related_to_contact_id : $contact_id;
-                    echo arraySelect( $availableContacts, 'todo_related_to_contact_id', 'size="1" class="text"', $contactId);
+                    $contactId = ($todo->todo_contact > 0) ? $todo->todo_contact : $contact_id;
+                    echo arraySelect( $availableContacts, 'todo_contact', 'size="1" class="text"', $contactId);
                 ?>
             </td>
         </tr>
@@ -106,7 +106,7 @@ global $cal_sdf;
             <td class="label"><?php echo $AppUI->_('Choose a Category');?>:<br />
                 <?php
                     $todoCategories = w2PgetSysVal('TodoType');
-                    echo arraySelect( $todoCategories, 'todo_category_id', 'size="1" class="text"', (!empty($todo->todo_category_id) ? $todo->todo_category_id : '0') );
+                    echo arraySelect( $todoCategories, 'todo_category', 'size="1" class="text"', (!empty($todo->todo_category) ? $todo->todo_category : '0') );
                 ?>
             </td>
         </tr>

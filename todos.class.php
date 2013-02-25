@@ -10,16 +10,15 @@ if (!defined('W2P_BASE_DIR'))
 class CTodo extends w2p_Core_BaseObject
 {
 	public $todo_id = 0;
-	public $todo_title = '';
-	public $todo_due = '';
-	public $todo_project_id = 0;
-	public $todo_user_id = 0;
-	public $todo_category_id = 0;
-	public $todo_related_to_contact_id = 0;
+	public $todo_name = '';
+	public $todo_due_date = '';
+	public $todo_project = 0;
+	public $todo_owner = 0;
+	public $todo_category = 0;
+	public $todo_contact = 0;
 	public $todo_status = 1;
 	public $todo_created = NULL;
 	public $todo_updated = NULL;
-	public $todo_closed = NULL;
 
 	public function __construct()
 	{
@@ -35,18 +34,18 @@ class CTodo extends w2p_Core_BaseObject
 		$q->addTable('todos', 'st');
 
 		$q->addWhere('st.todo_status = 0');
-		$q->addWhere("st.todo_user_id = $user_id");
+		$q->addWhere("st.todo_owner = $user_id");
 
         $q->addQuery('p.project_name, p.project_color_identifier, p.project_company');
-        $q->leftJoin('projects', 'p', 'p.project_id = st.todo_project_id');
+        $q->leftJoin('projects', 'p', 'p.project_id = st.todo_project');
 
         $q->addQuery('c.contact_first_name, c.contact_last_name');
-        $q->leftJoin('contacts', 'c', 'c.contact_id = st.todo_related_to_contact_id');
+        $q->leftJoin('contacts', 'c', 'c.contact_id = st.todo_contact');
 
         $projObj = new CProject();
         $projObj->setAllowedSQL($this->_AppUI->user_id, $q, null, 'p');
 
-        $q->addOrder('st.todo_closed DESC, p.project_name, st.todo_title');
+        $q->addOrder('st.todo_updated DESC, p.project_name, st.todo_name');
 
         return $q->loadList();
 	}
@@ -73,38 +72,38 @@ class CTodo extends w2p_Core_BaseObject
 		$q->addTable('todos', 'st');
 		switch ($dateRangeName) {
 			case 'overdue':
-				$q->addWhere("st.todo_due < '$today'");
+				$q->addWhere("st.todo_due_date < '$today'");
 				break;
 			case 'today':
-				$q->addWhere("st.todo_due >= '$today'");
-                $q->addWhere("st.todo_due < '$tomorrow'");
+				$q->addWhere("st.todo_due_date >= '$today'");
+                $q->addWhere("st.todo_due_date < '$tomorrow'");
 				break;
 			case 'tomorrow':
-                $q->addWhere("st.todo_due >= '$tomorrow'");
-                $q->addWhere("st.todo_due < '$dayAfterTomorrow'");
+                $q->addWhere("st.todo_due_date >= '$tomorrow'");
+                $q->addWhere("st.todo_due_date < '$dayAfterTomorrow'");
 				break;
 			case 'this-week':
-                $q->addWhere("st.todo_due >= '$dayAfterTomorrow'");
-                $q->addWhere("st.todo_due < '$thisSunday'");
+                $q->addWhere("st.todo_due_date >= '$dayAfterTomorrow'");
+                $q->addWhere("st.todo_due_date < '$thisSunday'");
 				break;
 			case 'next-week':
-                $q->addWhere("st.todo_due > '$thisSunday'");
-                $q->addWhere("st.todo_due <= '$nextSunday'");
+                $q->addWhere("st.todo_due_date > '$thisSunday'");
+                $q->addWhere("st.todo_due_date <= '$nextSunday'");
 				break;
 			case 'later':
             default:
-                $q->addWhere("st.todo_due > '$nextSunday'");
+                $q->addWhere("st.todo_due_date > '$nextSunday'");
 		}
 		$q->addWhere('st.todo_status = 1');
-        $q->addWhere("st.todo_user_id = ".(($user_id > 0) ? $user_id : $this->_AppUI->user_id));
+        $q->addWhere("st.todo_owner = ".(($user_id > 0) ? $user_id : $this->_AppUI->user_id));
 
         $q->addQuery('p.project_name, p.project_color_identifier, p.project_company');
-        $q->leftJoin('projects', 'p', 'p.project_id = st.todo_project_id');
+        $q->leftJoin('projects', 'p', 'p.project_id = st.todo_project');
 
         $projObj = new CProject();
         $projObj->setAllowedSQL($this->_AppUI->user_id, $q, null, 'p');
         if ($project_id > 0 && $this->_perms->checkModuleItem('projects', 'view', $project_id)) {
-            $q->addWhere("st.todo_project_id = $project_id");
+            $q->addWhere("st.todo_project = $project_id");
         }
 
         if ($company_id > 0 && $this->_perms->checkModuleItem('companies', 'view', $company_id)) {
@@ -114,13 +113,13 @@ class CTodo extends w2p_Core_BaseObject
                 $project_id_string .= $project['project_id'].',';
             }
             $project_id_string .= '-1';
-            $q->addWhere("st.todo_project_id IN ($project_id_string)");
+            $q->addWhere("st.todo_project IN ($project_id_string)");
         }
 
         if ($contact_id > 0 && $this->_perms->checkModuleItem('contacts', 'view', $contact_id)) {
-            $q->addWhere("st.todo_related_to_contact_id = $contact_id");
+            $q->addWhere("st.todo_contact = $contact_id");
         }
-		$q->addOrder('st.todo_due, p.project_name, st.todo_title');
+		$q->addOrder('st.todo_due_date, p.project_name, st.todo_name');
 
 		return $q->loadList();
 	}
@@ -137,21 +136,21 @@ class CTodo extends w2p_Core_BaseObject
 
 		$q = $this->_getQuery();
 		$q->addQuery('todo_id as id');
-		$q->addQuery('todo_title as name');
-        $q->addQuery('todo_title as description');
-        $q->addQuery('todo_project_id as project_id');
-		$q->addQuery("todo_due as startDate");
-        $q->addQuery("todo_due as endDate");
+		$q->addQuery('todo_name as name');
+        $q->addQuery('todo_name as description');
+        $q->addQuery('todo_project as project_id');
+		$q->addQuery("todo_due_date as startDate");
+        $q->addQuery("todo_due_date as endDate");
 		$q->addQuery("todo_updated as updatedDate");
         $q->addQuery('CONCAT(\''. W2P_BASE_URL . '/index.php?m=todos&todo_id=' . '\', todo_id) as url');
         $q->addQuery('p.project_id, p.project_name');
-        $q->addJoin('projects', 'p', 'p.project_id = todo_project_id');
+        $q->addJoin('projects', 'p', 'p.project_id = todo_project');
         
 		$q->addTable('todos');
-		$q->addWhere("todo_due < DATE_ADD(CURDATE(), INTERVAL $days DAY)");
-		$q->addWhere("todo_user_id = $userId");
+		$q->addWhere("todo_due_date < DATE_ADD(CURDATE(), INTERVAL $days DAY)");
+		$q->addWhere("todo_owner = $userId");
 		$q->addWhere("todo_status = 1");
-		$q->addOrder('todo_due');
+		$q->addOrder('todo_due_date');
 
 		return $q->loadList();
 	} 
@@ -159,9 +158,6 @@ class CTodo extends w2p_Core_BaseObject
 	public function complete()
 	{
 		$this->load();
-
-        $q = $this->_getQuery();
-        $this->todo_closed = $q->dbfnNowWithTZ();
         $this->todo_status = 0;
 
 		return $this->store();
@@ -180,13 +176,8 @@ class CTodo extends w2p_Core_BaseObject
         
         $q = $this->_getQuery();
         $this->todo_updated = $q->dbfnNowWithTZ();
-        $this->todo_due = $this->resolveTimeframeEnd($this->_AppUI);
-        $this->todo_due = $this->_AppUI->convertToSystemTZ($this->todo_due);
-
-        $this->todo_closed = null;
-        if ($this->todo_status == 0) {
-            $this->todo_closed = $q->dbfnNowWithTZ();
-        }
+        $this->todo_due_date = $this->resolveTimeframeEnd($this->_AppUI);
+        $this->todo_due_date = $this->_AppUI->convertToSystemTZ($this->todo_due_date);
     }
 
     public function hook_preCreate() {
@@ -200,8 +191,8 @@ class CTodo extends w2p_Core_BaseObject
     {
 		$dateInfo = array();
 		
-		if ($this->todo_due != '') {
-			$timeString = strtotime($this->todo_due);
+		if ($this->todo_due_date != '') {
+			$timeString = strtotime($this->todo_due_date);
 			if ($timeString > time()) {
 				//TODO: if the date translates to something easy like today or tomorrow, it should be set accordingly
 				$dateInfo['displayName'] = 'other';
@@ -322,8 +313,8 @@ class CTodo extends w2p_Core_BaseObject
         $search['table_key'] = $search['table_alias'].'.todo_id'; // primary key in searched table
         $search['table_link'] = 'index.php?m=todos&todo_id='; // first part of link
         $search['table_title'] = 'Todos';
-        $search['table_orderby'] = 'todo_title';
-        $search['search_fields'] = array('todo_title');
+        $search['table_orderby'] = 'todo_name';
+        $search['search_fields'] = array('todo_name');
         $search['display_fields'] = $search['search_fields'];
 
         return $search;
