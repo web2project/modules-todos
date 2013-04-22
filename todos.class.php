@@ -124,16 +124,19 @@ class CTodo extends w2p_Core_BaseObject
 		return $q->loadList();
 	}
 
+    /**
+     * The  "description" field purposely not included as we don't have that
+     *  field on this table.  This list of fields - id, name, description,
+     *  startDate, endDate, updatedDate - are named specifically for the iCal
+     *  creation. If you change them, it's probably going to break.  So don't do
+     *  that.
+     *
+     * @param int $userId
+     * @param int $days
+     * @return array 
+     */
 	public function getOpenTodoItems($userId, $days = 30)
     {
-		/*
-		 *  The  "description" field purposely not included as we don't have that
-		 * field on this table.  This list of fields - id, name, description,
-		 * startDate, endDate, updatedDate - are named specifically for the iCal
-		 * creation. If you change them, it's probably going to break.  So don't do
-		 * that.
-		 */
-
 		$q = $this->_getQuery();
 		$q->addQuery('todo_id as id');
 		$q->addQuery('todo_name as name');
