@@ -74,10 +74,10 @@ global $cal_sdf;
                     $availableAssignees = $AppUI->acl()->getPermittedUsers();
                     $availableAssignees = array(0 => '') + $availableAssignees;
                     if (count($availableAssignees) > 1) {
-                        echo arraySelect( $availableAssignees, 'todo_user', 'size="1" class="text"', ($todo->todo_user ? $todo->todo_user : $AppUI->user_id) );
+                        echo arraySelect( $availableAssignees, 'todo_owner', 'size="1" class="text"', ($todo->todo_user ? $todo->todo_user : $AppUI->user_id) );
                     } else {
                         ?>
-                        <input type="hidden" name="todo_user" value="0" />
+                        <input type="hidden" name="todo_owner" value="0" />
                         <em><?php echo $AppUI->_('No assignees available');?></em>
                         <?php
                     }

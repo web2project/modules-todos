@@ -119,9 +119,9 @@ class CTodo extends w2p_Core_BaseObject
         if ($contact_id > 0 && $this->_perms->checkModuleItem('contacts', 'view', $contact_id)) {
             $q->addWhere("st.todo_contact = $contact_id");
         }
-		$q->addOrder('st.todo_due_date, p.project_name, st.todo_name');
+        $q->addOrder('st.todo_due_date, p.project_name, st.todo_name');
 
-		return $q->loadList();
+        return $q->loadList();
 	}
 
     /**
@@ -176,7 +176,7 @@ class CTodo extends w2p_Core_BaseObject
 
     public function hook_preStore() {
         parent::hook_preStore();
-        
+
         $q = $this->_getQuery();
         $this->todo_updated = $q->dbfnNowWithTZ();
         $this->todo_due_date = $this->resolveTimeframeEnd($this->_AppUI);
@@ -264,7 +264,7 @@ class CTodo extends w2p_Core_BaseObject
 	protected function resolveTimeframeEnd()
 	{
 
-        switch ($this->todo_due) {
+        switch ($this->todo_due_date) {
 			case 'other':
 				$endDate = (int) w2PgetParam($_POST, 'display_todo_date', '2100-01-01');
 				if ($endDate != '2020-01-01') {
