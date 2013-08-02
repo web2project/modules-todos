@@ -100,11 +100,11 @@ class CTodo extends w2p_Core_BaseObject
         $q->addQuery('p.project_name, p.project_color_identifier, p.project_company');
         $q->leftJoin('projects', 'p', 'p.project_id = st.todo_project');
 
-        $projObj = new CProject();
-        $projObj->setAllowedSQL($this->_AppUI->user_id, $q, null, 'p');
-        if ($project_id > 0 && $this->_perms->checkModuleItem('projects', 'view', $project_id)) {
-            $q->addWhere("st.todo_project = $project_id");
-        }
+//        $projObj = new CProject();
+//        $projObj->setAllowedSQL($this->_AppUI->user_id, $q, null, 'p');
+//        if ($project_id > 0 && $this->_perms->checkModuleItem('projects', 'view', $project_id)) {
+//            $q->addWhere("st.todo_project = $project_id");
+//        }
 
         if ($company_id > 0 && $this->_perms->checkModuleItem('companies', 'view', $company_id)) {
             $projects = CCompany::getProjects($this->_AppUI, $company_id);
