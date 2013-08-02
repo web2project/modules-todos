@@ -30,20 +30,24 @@ $todoCategories = w2PgetSysVal('TodoType');
                     for ($i = ($xpg_min); $i < ($page * $xpg_pagesize); $i++)
                     {
                         $todoItem = $todoList[$i];
-                        if ($lastDate != substr($todoItem['todo_closed'], 0, 10)) {
+                        if ($lastDate != substr($todoItem['todo_due_date'], 0, 10)) {
                             ?><tr><td colspan="2"><hr /></td></tr><?php
                         }
                         ?>
                         <tr id="row_<?php echo $todoItem['todo_id']; ?>">
-                            <td nowrap="true">
-                                <?php echo substr($todoItem['todo_closed'], 0, 10); ?>
+                            <td nowrap="true" width="5%">
+                                <?php if ('2020' != substr($todoItem['todo_due_date'], 0, 4)) { ?>
+                                    <?php echo substr($todoItem['todo_due_date'], 0, 10); ?>
+                                <?php } else { ?>
+                                    <?php echo $AppUI->_('Later'); ?>
+                                <?php } ?>
                             </td>
                             <td id="cell_<?php echo $todoItem['todo_id']; ?>">
                                 <em><?php echo $todoCategories[$todoItem['todo_category']]; ?></em>
-                                <?php if ($todoItem['display_date'] > 0 && date('Y', strtotime($todoItem['display_date'])) != 2020) { ?>
-                                    <?php echo date('M d', strtotime($todoItem['display_date']));  ?> -
+                                <?php if ($todoItem['todo_due_date'] > 0 && date('Y', strtotime($todoItem['todo_due_date'])) != 2020) { ?>
+                                    <?php echo date('M d', strtotime($todoItem['todo_due_date']));  ?> -
                                 <?php } ?>
-                                <?php echo w2p_textarea($todoItem['todo_title']); ?>
+                                <?php echo w2p_textarea($todoItem['todo_name']); ?>
                                 <?php if ($todoItem['todo_project'] > 0) { ?>
                                     <span style="padding: 2px; background-color: #<?php echo $todoItem['project_color_identifier']; ?>;">
                                         <a href="./index.php?m=projects&amp;a=view&amp;project_id=<?php echo $todoItem['todo_project']; ?>" style="color: <?php echo bestColor($todoItem['project_color_identifier']) ?>;"><?php echo $todoItem['project_name']; ?></a>
@@ -57,7 +61,7 @@ $todoCategories = w2PgetSysVal('TodoType');
                             </td>
                         </tr>
                         <?php
-                        $lastDate = substr($todoItem['todo_closed'], 0, 10);
+                        $lastDate = substr($todoItem['todo_due_date'], 0, 10);
                     }
                 }
             ?>

@@ -42,8 +42,8 @@ class CTodo extends w2p_Core_BaseObject
         $q->addQuery('c.contact_first_name, c.contact_last_name');
         $q->leftJoin('contacts', 'c', 'c.contact_id = st.todo_contact');
 
-        $projObj = new CProject();
-        $projObj->setAllowedSQL($this->_AppUI->user_id, $q, null, 'p');
+//        $projObj = new CProject();
+//        $projObj->setAllowedSQL($this->_AppUI->user_id, $q, null, 'p');
 
         $q->addOrder('st.todo_updated DESC, p.project_name, st.todo_name');
 
