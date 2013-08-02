@@ -58,7 +58,7 @@ class CSetupTodos extends w2p_Core_Setup
         $q->createDefinition($sql);
         $q->exec();
 
-        $this->addCategories();
+        $this->_convertCategoriesToSysvals();
 
         return parent::install();
 	}
