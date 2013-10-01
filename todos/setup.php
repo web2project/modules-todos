@@ -12,7 +12,7 @@ if (!defined('W2P_BASE_DIR')){
 
 $config = array();
 $config['mod_name']        = 'Todos';
-$config['mod_version']     = '1.4';
+$config['mod_version']     = '1.4.1';
 $config['mod_directory']   = 'todos';               // tell web2project where to find this module
 $config['mod_setup_class'] = 'CSetupTodos';         // the name of the PHP setup class (used below)
 $config['mod_type']        = 'user';                // 'core' for modules distributed with w2p by standard, 'user' for additional modules
@@ -72,10 +72,9 @@ class CSetupTodos extends w2p_Core_Setup
             case '1.0.1':
                 $this->_convertCategoriesToSysvals();
             case '1.2.0':
-            case '1.3.0':                                       //current version
+            case '1.3.0':
                 $this->_renameFieldsToMatchConventions();
-            case '2.0':
-                
+            case '1.4':                                     //current version
             default:
 				//do nothing
 		}
@@ -142,5 +141,15 @@ class CSetupTodos extends w2p_Core_Setup
             $q->addUpdate($to, $from, false, true);
             $q->exec();
         }
+
+        $q->clear();
+        $q->alterTable('todos');
+        $q->dropField('todo_title');
+        $q->dropField('todo_due');
+        $q->dropField('todo_project_id');
+        $q->dropField('todo_user_id');
+        $q->dropField('todo_category_id');
+        $q->dropField('todo_related_to_contact_id');
+        $q->exec();
     }
 }
