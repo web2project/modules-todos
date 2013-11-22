@@ -12,7 +12,7 @@ if (!defined('W2P_BASE_DIR')){
 
 $config = array();
 $config['mod_name']        = 'Todos';
-$config['mod_version']     = '1.4.1';
+$config['mod_version']     = '2.0.0';
 $config['mod_directory']   = 'todos';               // tell web2project where to find this module
 $config['mod_setup_class'] = 'CSetupTodos';         // the name of the PHP setup class (used below)
 $config['mod_type']        = 'user';                // 'core' for modules distributed with w2p by standard, 'user' for additional modules
@@ -74,7 +74,8 @@ class CSetupTodos extends w2p_Core_Setup
             case '1.2.0':
             case '1.3.0':
                 $this->_renameFieldsToMatchConventions();
-            case '1.4':                                     //current version
+            case '1.4':
+            case '1.4.1':                                   //current version
             default:
 				//do nothing
 		}

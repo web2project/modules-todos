@@ -10,7 +10,7 @@ COMPATIBLE VERSIONS
 
 =====================================
 
-*  v1.3+ of this module has been validated to work with web2project v3.0-pre and above and is known to be incompatible with earlier releases.
+*  v1.4+ of this module has been validated to work with web2project v3.0-pre and above and is known to be incompatible with earlier releases.
 
 *  v1.1 has been validated to work with the current Web2project v2.0 and above.
 
@@ -19,7 +19,10 @@ COMPATIBLE VERSIONS
 Changelog
 =====================================
 
-1.3 Updated to use all of the new web2project v3.0 functionality
+2.0  Major version update to denote that anything before 3.0-pre is not compatible
+-  Tweaked the layouts to use less tables and more simple css;
+
+1.4/1.3 Updated to use all of the new web2project v3.0 functionality
 -  This is incompatible with any version before pre-3.0;
 -  Makes use of all pre/post hooks;
 
@@ -27,7 +30,6 @@ Changelog
 -  Various css tweaks to simplify the styles;
 -  Removed the variable passing rendered unneeded in web2project v3.0+;
 -  Removed the old store() method in favor of using our pre/post hooks;
-
 
 1.1 Minor configuration tweaks
 -  On deleting an item, the screen scrolls up to the top of the page;
