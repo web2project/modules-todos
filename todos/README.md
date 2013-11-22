@@ -1,8 +1,8 @@
-TodoList v1.2
+TodoList v2.0
 CaseySoftware, LLC
 webmaster@caseysoftware.com
 
-** This module will not work with any version of web2project prior to v3.0-pre! **
+** This module will not work with any version of web2project prior to v3.0! **
 
 The TodoList module handles simple todo management for web2project. These todo items are usually things that are either done or not done in minutes as opposed to hours or days. Therefore, they don't make sense as Tasks. These items can optionally be attached to specific Projects, Contacts, or both.
 
