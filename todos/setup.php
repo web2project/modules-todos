@@ -28,12 +28,12 @@ $config['permissions_item_label'] = 'todo_name';
 
 $config['requirements'] = array(
     array('require' => 'web2project',   'comparator' => '>=', 'version' => '3')
-);  
+);
 
-class CSetupTodos extends w2p_Core_Setup
+class CSetupTodos extends w2p_System_Setup
 {
 	public function install()
-	{ 
+	{
         $result = $this->_checkRequirements();
 
         if (!$result) {
