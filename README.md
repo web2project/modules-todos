@@ -1,25 +1,35 @@
-TodoList v1.2
+TodoList v2.0
+
 CaseySoftware, LLC
+
 webmaster@caseysoftware.com
 
-** This module will not work with any version of web2project prior to v3.0-pre! **
 
-The TodoList module handles simple todo management for web2project. These todo items are usually things that are either done or not done in minutes as opposed to hours or days. Therefore, they don't make sense as Tasks. These items can optionally be attached to specific Projects, Contacts, or both.
+** This module will not work with any version of web2project prior to v3.0! **
+
+The TodoList module handles simple todo management for web2project. Todo items are different from Tasks in that a todo is either done or not done. They don't have a percent complete or a true duration therefore, they don't make sense as Tasks. These items can optionally be attached to specific Projects, Contacts, or both.
 
 COMPATIBLE VERSIONS
 
 =====================================
 
-*  v1.3+ of this module has been validated to work with web2project v3.0-pre and above and is known to be incompatible with earlier releases.
+* v2.0 of this module added some Getting Things Done concepts in only displaying the next few items for any given project.
 
-*  v1.1 has been validated to work with the current Web2project v2.0 and above.
+* v1.4+ of this module has been validated to work with web2project v3.0-pre and above and is known to be incompatible with earlier releases.
 
-*  This won't work with dotProject, don't even bother trying.
+* v1.1 has been validated to work with the current Web2project v2.0 and above.
+
+* This won't work with dotProject, don't even bother trying.
 
 Changelog
 =====================================
 
-1.3 Updated to use all of the new web2project v3.0 functionality
+2.0  Major version update to denote that anything before 3.0-pre is not compatible
+-  Tweaked the layouts to use less tables and more simple css;
+-  Added some nifty GTD views for all projects or just the active ones;
+-  All the database column names have been corrected to our naming conventions, so the HTML Helper is an option.
+
+1.4/1.3 Updated to use all of the new web2project v3.0 functionality
 -  This is incompatible with any version before pre-3.0;
 -  Makes use of all pre/post hooks;
 
@@ -27,7 +37,6 @@ Changelog
 -  Various css tweaks to simplify the styles;
 -  Removed the variable passing rendered unneeded in web2project v3.0+;
 -  Removed the old store() method in favor of using our pre/post hooks;
-
 
 1.1 Minor configuration tweaks
 -  On deleting an item, the screen scrolls up to the top of the page;
@@ -38,8 +47,6 @@ KNOWN ISSUES
 =====================================
 
 Open Issues:
-
-*  The column names don't follow our naming conventions, so the HTMLHelper won't be useful here.
 
 *  The Add Edit form is static and attached to the top of the page by default, this should be moved to track the user.
 
