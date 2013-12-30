@@ -10,8 +10,6 @@ $todoTimeframes = $todo->getTimeframes();
 
 //TODO: this whole table mess should be converted over to nice divs
 ?>
-<script src="./modules/todos/todos.js" type="text/javascript"></script>
-<link rel="stylesheet" type="text/css" href="./modules/todos/todos.css" />
 
 <table width="100%">
     <tr>
