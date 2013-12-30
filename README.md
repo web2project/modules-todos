@@ -1,8 +1,5 @@
 TodoList v2.0
-
 CaseySoftware, LLC
-
-webmaster@caseysoftware.com
 
 
 ** This module will not work with any version of web2project prior to v3.0! **
