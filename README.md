@@ -70,4 +70,4 @@ USAGE
 3.  If you use the iCal feed from your web2project system, your todo items should automatically appear in it with no additional configuration.
 
 
-If you find this module particularly useful and would like to express gratitude, seek additional development, or just write large checks, please do not hesitate to contact CaseySoftware, LLC via webmaster@caseysoftware.com
+If you find this module particularly useful and would like to express gratitude, seek additional development, or just write large checks, please do not hesitate to contact me. :)
