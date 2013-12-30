@@ -54,7 +54,7 @@ $todoTimeframes = $todo->getTimeframes();
             }
             ?>
         </td>
-        <td>
+        <td valign="top">
             <div style="float: right; width: 300px;" id="addedit">
                 <?php include W2P_BASE_DIR.'/modules/todos/addedit.php'; ?>
             </div>
