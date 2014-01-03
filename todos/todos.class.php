@@ -97,14 +97,14 @@ class CTodo extends w2p_Core_BaseObject
 		$q->addWhere('st.todo_status = 1');
         $q->addWhere("st.todo_owner = ".(($user_id > 0) ? $user_id : $this->_AppUI->user_id));
 
-        $q->addQuery('p.project_name, p.project_color_identifier, p.project_company');
-        $q->leftJoin('projects', 'p', 'p.project_id = st.todo_project');
+        $q->addQuery('pr.project_name, pr.project_color_identifier, pr.project_company');
+        $q->leftJoin('projects', 'pr', 'pr.project_id = st.todo_project');
 
-//        $projObj = new CProject();
-//        $projObj->setAllowedSQL($this->_AppUI->user_id, $q, null, 'p');
-//        if ($project_id > 0 && $this->_perms->checkModuleItem('projects', 'view', $project_id)) {
-//            $q->addWhere("st.todo_project = $project_id");
-//        }
+        $projObj = new CProject();
+        $projObj->setAllowedSQL($this->_AppUI->user_id, $q, null, 'pr');
+        if ($project_id > 0) {
+            $q->addWhere("st.todo_project = $project_id");
+        }
 
         if ($company_id > 0 && $this->_perms->checkModuleItem('companies', 'view', $company_id)) {
             $projects = CCompany::getProjects($this->_AppUI, $company_id);
@@ -119,7 +119,7 @@ class CTodo extends w2p_Core_BaseObject
         if ($contact_id > 0 && $this->_perms->checkModuleItem('contacts', 'view', $contact_id)) {
             $q->addWhere("st.todo_contact = $contact_id");
         }
-        $q->addOrder('st.todo_due_date, p.project_name, st.todo_name');
+        $q->addOrder('st.todo_due_date, pr.project_name, st.todo_name');
 
         return $q->loadList();
 	}
