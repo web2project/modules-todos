@@ -69,7 +69,7 @@ global $cal_sdf;
             </td>
         </tr>
         <tr>
-            <td class="label"><?php echo $AppUI->_('Who\'s Responsible?');?>:<br />
+            <td class="label"><?php echo $AppUI->_('Assignee');?>:
                 <?php
                     $availableAssignees = $AppUI->acl()->getPermittedUsers();
                     $availableAssignees = array(0 => '') + $availableAssignees;
@@ -94,7 +94,7 @@ global $cal_sdf;
             </td>
         </tr>
         <tr>
-            <td class="label"><?php echo $AppUI->_('Related to which person?');?>:<br />
+            <td class="label"><?php echo $AppUI->_('Related to which contact?');?>:<br />
                 <?php
                     $availableContacts = $todo->getContacts();
                     $contactId = ($todo->todo_contact > 0) ? $todo->todo_contact : $contact_id;
