@@ -18,7 +18,8 @@ if (isset($_POST['todo_user'])) {
 }
 $owner = $AppUI->getState('TodoOwner') !== null ? $AppUI->getState('TodoOwner') : $AppUI->user_id;
 
-$user_list = $users = $perms->getPermittedUsers('projects');
+$user_list[0] = 'All Users';
+$user_list += $users = $perms->getPermittedUsers('projects');
 ?>
 <script src="./modules/todos/todos.js" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css" href="./modules/todos/todos.css" />

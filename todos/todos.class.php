@@ -95,7 +95,9 @@ class CTodo extends w2p_Core_BaseObject
                 $q->addWhere("st.todo_due_date > '$nextSunday'");
 		}
 		$q->addWhere('st.todo_status = 1');
-        $q->addWhere("st.todo_owner = ".(($user_id > 0) ? $user_id : $this->_AppUI->user_id));
+        if ($user_id) {
+            $q->addWhere("st.todo_owner = " . $user_id);
+        }
 
         $q->addQuery('pr.project_name, pr.project_color_identifier, pr.project_company');
         $q->leftJoin('projects', 'pr', 'pr.project_id = st.todo_project');
