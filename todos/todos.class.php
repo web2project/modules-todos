@@ -243,7 +243,7 @@ class CTodo extends w2p_Core_BaseObject
 		$allowedCompanies = $company->getAllowedSQL($this->_AppUI->user_id);
 
 		$q = $this->_getQuery();
-		$q->addQuery('contact_id, contact_order_by');
+		$q->addQuery('contact_id, contact_display_name');
 		$q->addQuery('contact_first_name, contact_last_name');
 		$q->addTable('contacts');
 		$q->addWhere('
