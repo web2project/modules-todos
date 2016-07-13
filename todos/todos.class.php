@@ -87,7 +87,7 @@ class CTodo extends w2p_Core_BaseObject
                 $q->addWhere("st.todo_due_date < '$thisSunday'");
 				break;
 			case 'next-week':
-                $q->addWhere("st.todo_due_date > '$thisSunday'");
+                $q->addWhere("st.todo_due_date >= '$thisSunday'");
                 $q->addWhere("st.todo_due_date <= '$nextSunday'");
 				break;
 			case 'later':
