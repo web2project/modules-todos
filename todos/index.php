@@ -20,9 +20,7 @@ $owner = $AppUI->getState('TodoOwner') !== null ? $AppUI->getState('TodoOwner') 
 
 $user_list[0] = 'All Users';
 $user_list += $users = $perms->getPermittedUsers('projects');
-?>
-<link rel="stylesheet" type="text/css" href="./modules/todos/todos.css" />
-<?php
+
 $titleBlock = new w2p_Theme_TitleBlock('TodoList', '', $m);
 $titleBlock->addFilterCell('Owner', 'todo_user', $user_list, $owner);
 $titleBlock->show();
