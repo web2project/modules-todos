@@ -29,11 +29,6 @@ if (w2PgetParam($_POST, 'ajax', 0)) {
     exit;
 }
 
-if (is_array($result)) {
-    $AppUI->setMsg($result, UI_MSG_ERROR, true);
-    $AppUI->holdObject($obj);
-    $AppUI->redirect('m=todos');
-}
 if ($result) {
     $AppUI->setMsg('Todos '.$action, UI_MSG_OK, true);
     $return_id = (int) w2PgetParam($_POST, 'return_id', 0);
@@ -55,6 +50,7 @@ if ($result) {
 } elseif (count($obj->getError())) {
     // a validation or database error, not a permissions problem
     $AppUI->setMsg($obj->getError(), UI_MSG_ERROR);
+    $AppUI->holdObject($obj);
     $AppUI->redirect();
 } else {
     $AppUI->redirect(ACCESS_DENIED);
