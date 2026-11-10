@@ -19,6 +19,14 @@ class CTodo extends w2p_Core_BaseObject
      */
     const NO_DUE_DATE = '9999-12-31 23:59:59';
 
+    /**
+     * The values the add/edit form posts as todo_due_date.
+     *
+     * @var string[]
+     */
+    protected static $timeframeNames = array('overdue', 'today', 'tomorrow',
+        'this-week', 'next-week', 'later', 'other');
+
 	public $todo_id = 0;
 	public $todo_name = '';
 	public $todo_due_date = '';
@@ -204,9 +212,18 @@ class CTodo extends w2p_Core_BaseObject
 
         $q = $this->_getQuery();
         $this->todo_updated = $q->dbfnNowWithTZ();
-        $this->todo_due_date = $this->resolveTimeframeEnd($this->_AppUI);
-        if (self::hasDueDate($this->todo_due_date)) {
-            $this->todo_due_date = $this->_AppUI->convertToSystemTZ($this->todo_due_date);
+
+        if ('' == (string) $this->todo_due_date) {
+            $this->todo_due_date = 'later';
+        }
+        // Only a value posted by the form is a timeframe name ('today',
+        //   'other', ...). complete() and delete() store a loaded record,
+        //   whose due date is already a stored UTC datetime: leave it alone.
+        if (in_array($this->todo_due_date, self::$timeframeNames, true)) {
+            $this->todo_due_date = $this->resolveTimeframeEnd();
+            if (self::hasDueDate($this->todo_due_date)) {
+                $this->todo_due_date = $this->_AppUI->convertToSystemTZ($this->todo_due_date);
+            }
         }
     }
 
