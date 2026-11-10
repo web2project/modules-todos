@@ -382,7 +382,7 @@ class CTodo extends w2p_Core_BaseObject
         return (bool) $this->_perms->checkModule('system', 'edit');
     }
 
-    public function hook_preStore() {
+    protected function hook_preStore() {
         parent::hook_preStore();
 
         $q = $this->_getQuery();
@@ -402,7 +402,7 @@ class CTodo extends w2p_Core_BaseObject
         }
     }
 
-    public function hook_preCreate() {
+    protected function hook_preCreate() {
         parent::hook_preCreate();
 
         $q = $this->_getQuery();
