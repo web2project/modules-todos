@@ -180,7 +180,9 @@ class CTodo extends w2p_Core_BaseObject
 
 	public function complete()
 	{
-		$this->load();
+        if (!$this->load()) {
+            return false;
+        }
         $this->todo_status = 0;
 
 		return $this->store();
@@ -201,10 +203,104 @@ class CTodo extends w2p_Core_BaseObject
         if ($oid) {
             $this->todo_id = (int) $oid;
         }
-        $this->load();
+        if (!$this->load() || !$this->canDelete()) {
+            return false;
+        }
         $this->todo_status = -1;
 
         return $this->store();
+    }
+
+    /**
+     * Todos are personal. On top of the module permissions, a todo can only
+     *   be opened by its owner, by someone who can view its project, or by a
+     *   system admin, and only changed by its owner, by someone who can edit
+     *   its project, or by a system admin. Without this, anyone with access
+     *   to the module could open, complete or delete any todo by its id.
+     */
+    public function canView()
+    {
+        return parent::canView() && $this->_canTouch('view');
+    }
+
+    public function canEdit()
+    {
+        return parent::canEdit() && $this->_canTouch('edit');
+    }
+
+    public function canDelete($notUsed = '', $oid = null, $joins = null)
+    {
+        if (!parent::canDelete($notUsed, $oid, $joins)) {
+            return false;
+        }
+        if (!$this->_canTouch('edit')) {
+            $this->_error['noDeletePermission'] = $this->_AppUI->_('noDeletePermission');
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Whether the current user may act on a todo row as listed (the row
+     *   needs todo_owner and todo_project). The lists use this to hide the
+     *   edit, complete and delete controls on other people's todos.
+     *
+     * @param array $todoItem
+     *
+     * @return bool
+     */
+    public function canChangeItem(array $todoItem)
+    {
+        return $this->_isAllowed((int) $todoItem['todo_owner'], (int) $todoItem['todo_project'], 'edit');
+    }
+
+    /**
+     * Checks the stored owner and project of this todo. They are read from
+     *   the table because load() asks canView() before the row is loaded.
+     *
+     * @param string $op 'view' or 'edit'
+     *
+     * @return bool
+     */
+    protected function _canTouch($op)
+    {
+        $id = (int) $this->todo_id;
+        if ($id < 1) {
+            // a new todo
+            return true;
+        }
+
+        $q = new w2p_Database_Query();
+        $q->addTable('todos');
+        $q->addQuery('todo_owner, todo_project');
+        $q->addWhere('todo_id = ' . $id);
+        $row = $q->loadHash();
+        if (!$row) {
+            // nothing stored yet, so nothing to protect
+            return true;
+        }
+
+        return $this->_isAllowed((int) $row['todo_owner'], (int) $row['todo_project'], $op);
+    }
+
+    /**
+     * @param int    $ownerId
+     * @param int    $projectId
+     * @param string $op 'view' or 'edit'
+     *
+     * @return bool
+     */
+    protected function _isAllowed($ownerId, $projectId, $op)
+    {
+        if ($ownerId == (int) $this->_AppUI->user_id) {
+            return true;
+        }
+        if ($projectId > 0 && $this->_perms->checkModuleItem('projects', $op, $projectId)) {
+            return true;
+        }
+
+        return (bool) $this->_perms->checkModule('system', 'edit');
     }
 
     public function hook_preStore() {
@@ -389,11 +485,13 @@ class CTodo extends w2p_Core_BaseObject
     {
         ?>
         <li id="r<?php echo $todoItem['todo_id']; ?>">
+            <?php if ($this->canChangeItem($todoItem)) { ?>
             <a href="#" onClick="delIt(<?php echo $todoItem['todo_id']; ?>)">
                 <?php echo w2PshowImage('icons/stock_delete-16.png', 16, 16, ''); ?>
             </a>
             <a href="?m=todos&amp;todo_id=<?php echo $todoItem['todo_id']; ?>"><?php echo w2PshowImage('icons/pencil.gif', 16, 16, ''); ?></a>
             <input type="checkbox" onClick="markItemComplete(<?php echo $todoItem['todo_id']; ?>)" />
+            <?php } ?>
             <em><?php echo $this->_AppUI->_($todoCategories[$todoItem['todo_category']]); ?></em>
             <?php if (in_array($dateRangeName, array('overdue', 'later')) && self::hasDueDate($todoItem['todo_due'])) { ?>
                 <?php
