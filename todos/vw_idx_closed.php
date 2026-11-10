@@ -3,7 +3,7 @@ if (!defined('W2P_BASE_DIR'))
 {
     die('You should not access this file directly.');
 }
-global $AppUI, $project_id, $contact_id, $company_id, $tab, $owner;
+global $AppUI, $m, $project_id, $contact_id, $company_id, $owner;
 
 $todo = new CTodo();
 $todoCategories = w2PgetSysVal('TodoType');
@@ -19,17 +19,19 @@ $todoCategories = w2PgetSysVal('TodoType');
 
                 if ($todoCount > 0)
                 {
+                    // This file runs inside w2p_Theme_TabBox::show(), so the
+                    //   page links take the tab from the saved tab state.
+                    $tab = (int) $AppUI->getState('todoListIdxTab', 0);
+                    $paginator = new w2p_Utilities_Paginator($todoList);
+                    $todoItems = $paginator->getItemsOnPage((int) w2PgetParam($_GET, 'page', 1));
+
                     echo '<tr><td colspan="2" align="center">';
-                    $page = w2PgetParam($_GET, 'page', 1);
-                    $tab = 1;
-                    $xpg_pagesize = w2PgetConfig('page_size', 50);
-                    $xpg_min = $xpg_pagesize * ($page - 1); // This is where we start our record set from
-                    echo buildPaginationNav($AppUI, $m, $tab, $todoCount, $xpg_pagesize, $page);
+                    echo $paginator->buildNavigation($AppUI, $m, $tab);
                     echo '</td></tr>';
 
-                    for ($i = ($xpg_min); $i < ($page * $xpg_pagesize); $i++)
+                    $lastDate = null;
+                    foreach ($todoItems as $todoItem)
                     {
-                        $todoItem = $todoList[$i];
                         if ($lastDate != substr($todoItem['todo_due_date'], 0, 10)) {
                             ?><tr><td colspan="2"><hr /></td></tr><?php
                         }
