@@ -52,6 +52,10 @@ if ($result) {
             break;
     }
     $AppUI->redirect($success);
+} elseif (count($obj->getError())) {
+    // a validation or database error, not a permissions problem
+    $AppUI->setMsg($obj->getError(), UI_MSG_ERROR);
+    $AppUI->redirect();
 } else {
     $AppUI->redirect(ACCESS_DENIED);
 }

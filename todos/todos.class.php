@@ -242,6 +242,32 @@ class CTodo extends w2p_Core_BaseObject
 	}
 
     /**
+     * Runs after hook_preStore(), so the due date is already resolved. The
+     *   checks only apply to open todos, so a legacy record (for example one
+     *   whose name was NULL before 3.0) can still be completed or deleted.
+     *
+     * @return bool
+     */
+    public function isValid()
+    {
+        $baseErrorMsg = get_class($this) . '::store-check failed - ';
+
+        if (1 == (int) $this->todo_status) {
+            if ('' == trim((string) $this->todo_name)) {
+                $this->_error['todo_name'] = $baseErrorMsg . 'todo name is not set';
+            }
+            if ((int) $this->todo_owner < 1) {
+                $this->_error['todo_owner'] = $baseErrorMsg . 'todo owner is not set';
+            }
+        }
+        if (!preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', (string) $this->todo_due_date)) {
+            $this->_error['todo_due_date'] = $baseErrorMsg . 'todo due date is not valid';
+        }
+
+        return (count($this->_error)) ? false : true;
+    }
+
+    /**
      * Todos are soft-deleted: the row stays with a status of -1.
      *
      * The signature has to match w2p_Core_BaseObject::delete($oid = null);
