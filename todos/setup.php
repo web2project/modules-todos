@@ -169,6 +169,16 @@ class CSetupTodos extends w2p_System_Setup
 
     private function _convertCategoriesToSysvals()
     {
+        // A reinstall after a partial remove would otherwise add a second
+        //   copy of every category; keep the existing (maybe edited) list.
+        $q = $this->_getQuery();
+        $q->addTable('sysvals');
+        $q->addQuery('COUNT(*)');
+        $q->addWhere("sysval_title = 'TodoType'");
+        if ((int) $q->loadResult() > 0) {
+            return true;
+        }
+
         $i = 1;
         $todoCategories = array('Admin', 'Billing', 'Call', 'Config', 'Dev',
             'Email', 'Evaluation', 'Follow-up', 'Meeting', 'Personal',
