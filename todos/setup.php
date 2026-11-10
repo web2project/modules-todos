@@ -71,26 +71,26 @@ class CSetupTodos extends w2p_System_Setup
 
 	public function upgrade($old_version)
 	{
-        switch ($old_version) {
-            case '0.5':
-            case '0.5.0':
-            case '1.0.0':
-            case '1.0.1':
-                $this->_convertCategoriesToSysvals();
-            case '1.2.0':
-            case '1.3.0':
-                $this->_renameFieldsToMatchConventions();
-            case '1.4':
-            case '1.4.1':
-            case '2.0':
-            case '2.0.0':
-                if (!$this->_convertNoDueDates() || !$this->_alignSchema()) {
-                    return false;
-                }
-            case '3.0.0':                                   //current version
-            default:
-				//do nothing
-		}
+        // Each step runs for every release older than the one that made the
+        //   change, so point releases (1.1.2, 1.4.1, 2.0) aren't skipped.
+        //   Thresholds have two parts on purpose: version_compare() puts
+        //   '1.4' before '1.4.0'.
+        if (version_compare($old_version, '1.1', '<')) {
+            // 1.1 moved the hardcoded categories into System Lookup Values
+            $this->_convertCategoriesToSysvals();
+        }
+        if (version_compare($old_version, '1.4', '<')) {
+            // 1.4 renamed the columns to the core naming conventions
+            if (!$this->_renameFieldsToMatchConventions()) {
+                return false;
+            }
+        }
+        if (version_compare($old_version, '3.0', '<')) {
+            if (!$this->_convertNoDueDates() || !$this->_alignSchema()) {
+                return false;
+            }
+        }
+
 		return true;
 	}
 
@@ -136,6 +136,14 @@ class CSetupTodos extends w2p_System_Setup
      */
     private function _convertNoDueDates()
     {
+        // a 2.x table converted from 1.x under MySQL 5 can still hold zero
+        //   dates, which would make the ALTER below fail
+        $zeroDates = array('todo_due_date' => "'" . CTodo::NO_DUE_DATE . "'",
+            'todo_created' => 'NOW()', 'todo_updated' => 'todo_created');
+        if (!$this->_clearZeroDates($zeroDates)) {
+            return false;
+        }
+
         $q = $this->_getQuery();
         $q->alterTable('todos');
         $q->createDefinition(array(array('action' => 'MODIFY', 'type' => '',
@@ -197,17 +205,35 @@ class CSetupTodos extends w2p_System_Setup
         return true;
     }
 
+    /**
+     * @return bool
+     */
     private function _renameFieldsToMatchConventions()
     {
-        $q = $this->_getQuery();
-        $q->alterTable('todos');
-        $q->addField('todo_name', 'text');
-        $q->addField('todo_due_date', "datetime NOT NULL DEFAULT '2038-01-01'");
-        $q->addField('todo_project', 'int NOT NULL DEFAULT 0');
-        $q->addField('todo_owner', 'int NOT NULL DEFAULT 0');
-        $q->addField('todo_category', 'int NOT NULL DEFAULT 0');
-        $q->addField('todo_contact', 'int NOT NULL DEFAULT 0');
-        $q->exec();
+        // 1.x tables come from MySQL 5 and can hold 0000-00-00, as values
+        //   and as column defaults. Under MySQL 8 strict mode any ALTER on
+        //   such a table fails, so clear the values first and replace the
+        //   defaults in the same ALTER that adds the new columns (the
+        //   approach of core's install/sql/056).
+        $zeroDates = array('todo_due' => "'2038-01-01'", 'todo_created' => 'NOW()',
+            'todo_updated' => 'todo_created');
+        if (!$this->_clearZeroDates($zeroDates)) {
+            return false;
+        }
+        $alter = array(
+            array('MODIFY', "todo_due datetime NOT NULL DEFAULT '2038-01-01'"),
+            array('MODIFY', 'todo_created datetime NOT NULL DEFAULT CURRENT_TIMESTAMP'),
+            array('MODIFY', 'todo_updated datetime NOT NULL DEFAULT CURRENT_TIMESTAMP'),
+            array('ADD', 'todo_name text'),
+            array('ADD', "todo_due_date datetime NOT NULL DEFAULT '2038-01-01'"),
+            array('ADD', 'todo_project int NOT NULL DEFAULT 0'),
+            array('ADD', 'todo_owner int NOT NULL DEFAULT 0'),
+            array('ADD', 'todo_category int NOT NULL DEFAULT 0'),
+            array('ADD', 'todo_contact int NOT NULL DEFAULT 0'),
+        );
+        if (!$this->_alterTodos($alter)) {
+            return false;
+        }
 
         $convert = array('todo_title' => 'todo_name',
             'todo_due' => 'todo_due_date',
@@ -217,21 +243,67 @@ class CSetupTodos extends w2p_System_Setup
             'todo_related_to_contact_id' => 'todo_contact',
         );
 
+        $q = $this->_getQuery();
         foreach($convert as $from => $to) {
             $q->clear();
             $q->addTable('todos');
             $q->addUpdate($to, $from, false, true);
-            $q->exec();
+            if (!$q->exec()) {
+                return false;
+            }
         }
 
-        $q->clear();
+        $drop = array();
+        foreach (array_keys($convert) as $column) {
+            $drop[] = array('DROP', $column);
+        }
+
+        return $this->_alterTodos($drop);
+    }
+
+    /**
+     * Replaces NULL and 0000-00-00 values, which make any ALTER fail under
+     *   MySQL 8 strict mode.
+     *
+     * @param array $columns column => SQL expression for the new value
+     *
+     * @return bool
+     */
+    private function _clearZeroDates(array $columns)
+    {
+        $q = $this->_getQuery();
+        foreach ($columns as $column => $value) {
+            $q->clear();
+            $q->addTable('todos');
+            $q->addUpdate($column, $value, false, true);
+            $q->addWhere($column . ' IS NULL OR CAST(' . $column . " AS CHAR(20)) LIKE '0000-00-00%'");
+            if (!$q->exec()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * One ALTER TABLE on todos. Built with createDefinition() because
+     *   addField()/dropField() are deprecated.
+     *
+     * @param array $changes list of array(action, column spec)
+     *
+     * @return bool
+     */
+    private function _alterTodos(array $changes)
+    {
+        $definition = array();
+        foreach ($changes as $change) {
+            $definition[] = array('action' => $change[0], 'type' => '', 'spec' => $change[1]);
+        }
+
+        $q = $this->_getQuery();
         $q->alterTable('todos');
-        $q->dropField('todo_title');
-        $q->dropField('todo_due');
-        $q->dropField('todo_project_id');
-        $q->dropField('todo_user_id');
-        $q->dropField('todo_category_id');
-        $q->dropField('todo_related_to_contact_id');
-        $q->exec();
+        $q->createDefinition($definition);
+
+        return (bool) $q->exec();
     }
 }
