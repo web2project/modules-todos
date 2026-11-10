@@ -701,24 +701,20 @@ class CTodo extends w2p_Core_BaseObject
     public function renderItem($todoItem, $todoCategories = array(), $dateRangeName = '')
     {
         ?>
-        <li id="r<?php echo $todoItem['todo_id']; ?>">
+        <li class="list-group-item px-1 py-1" id="r<?php echo $todoItem['todo_id']; ?>">
             <?php if ($this->canChangeItem($todoItem)) { ?>
-            <a href="#" onClick="return w2pTodos.remove(<?php echo $todoItem['todo_id']; ?>);">
-                <?php echo w2PshowImage('icons/stock_delete-16.png', 16, 16, ''); ?>
-            </a>
+            <input type="checkbox" class="form-check-input me-1" title="<?php echo $this->_AppUI->_('Mark as done'); ?>" onClick="w2pTodos.complete(<?php echo $todoItem['todo_id']; ?>)" />
+            <a href="#" onClick="return w2pTodos.remove(<?php echo $todoItem['todo_id']; ?>);"><?php echo w2PshowImage('icons/stock_delete-16.png', 16, 16, ''); ?></a>
             <a href="?m=todos&amp;todo_id=<?php echo $todoItem['todo_id']; ?>"><?php echo w2PshowImage('icons/pencil.gif', 16, 16, ''); ?></a>
-            <input type="checkbox" onClick="w2pTodos.complete(<?php echo $todoItem['todo_id']; ?>)" />
             <?php } ?>
-            <em><?php echo $this->_AppUI->_(isset($todoCategories[$todoItem['todo_category']]) ? $todoCategories[$todoItem['todo_category']] : ''); ?></em>
+            <em class="text-body-secondary"><?php echo $this->_AppUI->_(isset($todoCategories[$todoItem['todo_category']]) ? $todoCategories[$todoItem['todo_category']] : ''); ?></em>
             <?php if (in_array($dateRangeName, array('overdue', 'later')) && self::hasDueDate($todoItem['todo_due_date'])) { ?>
-                <?php
-                echo $this->_AppUI->formatTZAwareTime($todoItem['todo_due_date'], '%b %d').' - ';
-            } ?>
+                <span class="text-body-secondary"><?php echo $this->_AppUI->formatTZAwareTime($todoItem['todo_due_date'], '%b %d'); ?> -</span>
+            <?php } ?>
             <?php echo w2p_textarea($todoItem['todo_name']); ?>
-            <?php if ($todoItem['todo_project'] > 0) { ?>
-                <span style="padding: 2px; background-color: #<?php echo self::safeColor($todoItem['project_color_identifier']); ?>;">
-                                <a href="./index.php?m=projects&amp;a=view&amp;project_id=<?php echo $todoItem['todo_project']; ?>" style="color: <?php echo bestColor(self::safeColor($todoItem['project_color_identifier'])) ?>;"><?php echo self::e($todoItem['project_name']); ?></a>
-                            </span>
+            <?php if ($todoItem['todo_project'] > 0) {
+                $color = self::safeColor($todoItem['project_color_identifier']); ?>
+                <a class="badge text-decoration-none" style="background-color: #<?php echo $color; ?>; color: <?php echo bestColor($color); ?>;" href="./index.php?m=projects&amp;a=view&amp;project_id=<?php echo (int) $todoItem['todo_project']; ?>"><?php echo self::e($todoItem['project_name']); ?></a>
             <?php } ?>
             <?php echo $this->renderContact($todoItem); ?>
         </li>

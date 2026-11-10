@@ -16,20 +16,16 @@ $todoCategories = w2PgetSysVal('TodoType');
 $projects = $todo->getNextTodosByProject($owner, !empty($gtdActiveOnly));
 
 ?>
-<table width="100%">
-    <tr>
-        <td id="todos_list" style="width: 100%; vertical-align: top;" data-nonce="<?php echo $AppUI->getFormToken(); ?>" data-error="<?php echo $AppUI->_('The todo could not be updated. Please reload the page and try again.'); ?>">
-            <?php
-            foreach ($projects as $projectId => $data) {
-                $name = $projectId ? $data['project_name'] : $AppUI->_('No project specified', UI_OUTPUT_RAW);
-                echo '<strong>' . CTodo::e($name) . '</strong>';
-                echo '<ul style="list-style-type: none;">';
-                foreach ($data['todos'] as $todoItem) {
-                    $todo->renderItem($todoItem, $todoCategories);
-                }
-                echo '</ul>';
-            }
-            ?>
-        </td>
-    </tr>
-</table>
+<div id="todos_list" data-nonce="<?php echo $AppUI->getFormToken(); ?>" data-error="<?php echo $AppUI->_('The todo could not be updated. Please reload the page and try again.'); ?>">
+    <?php
+    foreach ($projects as $projectId => $data) {
+        $name = $projectId ? $data['project_name'] : $AppUI->_('No project specified', UI_OUTPUT_RAW);
+        echo '<h3 class="h6 mt-2 mb-1">' . CTodo::e($name) . '</h3>';
+        echo '<ul class="list-group list-group-flush mb-2">';
+        foreach ($data['todos'] as $todoItem) {
+            $todo->renderItem($todoItem, $todoCategories);
+        }
+        echo '</ul>';
+    }
+    ?>
+</div>
