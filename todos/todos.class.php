@@ -242,6 +242,9 @@ class CTodo extends w2p_Core_BaseObject
         $project = new CProject();
         $projects = $project->getAllowedProjects($user_id);
 
+        // A user without any project access must still get an array back:
+        //   the add form does array(0 => '') + this, a TypeError on null.
+        $projectList = array();
         foreach ($projects as $project_id => $project_info) {
             $projectList[$project_id] = $project_info['project_name'];
         }
