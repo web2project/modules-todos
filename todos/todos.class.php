@@ -395,13 +395,16 @@ class CTodo extends w2p_Core_BaseObject
 			// stored in UTC; shown as the user's own date
 			$due = new DateTime($this->todo_due_date, new DateTimeZone('UTC'));
 			$due->setTimezone($this->_userTimezone());
-			if ($due->getTimestamp() > time()) {
-				//TODO: if the date translates to something easy like today or tomorrow, it should be set accordingly
-				$dateInfo['displayName'] = 'other';
-				$dateInfo['cleanFormat'] = $due->format('Ymd');
-				$dateInfo['displayFormat'] = $due->format('Y/M/d');
-			} else {
+			// Keep the real date, including a past one: falling back to
+			//   'today' moved an overdue todo to today on every save.
+			$dateInfo['displayName'] = 'other';
+			$dateInfo['cleanFormat'] = $due->format('Ymd');
+			$dateInfo['displayFormat'] = $due->format('Y/M/d');
+			$today = $this->_userToday();
+			if ($due->format('Y-m-d') == $today->format('Y-m-d')) {
 				$dateInfo['displayName'] = 'today';
+			} elseif ($due->format('Y-m-d') == $today->modify('+1 day')->format('Y-m-d')) {
+				$dateInfo['displayName'] = 'tomorrow';
 			}
 		} else {
 			$dateInfo['displayName'] = 'today';
