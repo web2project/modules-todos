@@ -18,7 +18,7 @@ $todoCategories = w2PgetSysVal('TodoType');
                 $todos = $todo->loadAll('todo_due_date', 'todo_status = 1 AND todo_owner = ' . $AppUI->user_id . ' AND todo_project = ' . $data['project_id']);
 
                 if (count($todos)) {
-                    echo '<strong>'.$data['project_name'].'</strong>';
+                    echo '<strong>' . CTodo::e($data['project_id'] ? $data['project_name'] : $AppUI->_($data['project_name'], UI_OUTPUT_RAW)) . '</strong>';
                     echo '<ul style="list-style-type: none;">';
                     $i = 0;
                     foreach($todos as $todoItem) {

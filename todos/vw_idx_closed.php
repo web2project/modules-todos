@@ -43,20 +43,20 @@ $todoCategories = w2PgetSysVal('TodoType');
                                 <?php } ?>
                             </td>
                             <td id="cell_<?php echo $todoItem['todo_id']; ?>">
-                                <em><?php echo $todoCategories[$todoItem['todo_category']]; ?></em>
+                                <em><?php echo CTodo::e(isset($todoCategories[$todoItem['todo_category']]) ? $todoCategories[$todoItem['todo_category']] : ''); ?></em>
                                 <?php if (CTodo::hasDueDate($todoItem['todo_due_date'])) { ?>
                                     <?php echo date('M d', strtotime($todoItem['todo_due_date']));  ?> -
                                 <?php } ?>
                                 <?php echo w2p_textarea($todoItem['todo_name']); ?>
                                 <?php if ($todoItem['todo_project'] > 0) { ?>
-                                    <span style="padding: 2px; background-color: #<?php echo $todoItem['project_color_identifier']; ?>;">
-                                        <a href="./index.php?m=projects&amp;a=view&amp;project_id=<?php echo $todoItem['todo_project']; ?>" style="color: <?php echo bestColor($todoItem['project_color_identifier']) ?>;"><?php echo $todoItem['project_name']; ?></a>
+                                    <span style="padding: 2px; background-color: #<?php echo CTodo::safeColor($todoItem['project_color_identifier']); ?>;">
+                                        <a href="./index.php?m=projects&amp;a=view&amp;project_id=<?php echo $todoItem['todo_project']; ?>" style="color: <?php echo bestColor(CTodo::safeColor($todoItem['project_color_identifier'])) ?>;"><?php echo CTodo::e($todoItem['project_name']); ?></a>
                                     </span>
                                 <?php } ?>
                                 <?php if ($todoItem['todo_contact'] > 0) {
                                     $contact = new CContact();
                                     $contact->load($todoItem['todo_contact']);
-                                    ?>&nbsp;(Re: <a href="./index.php?m=contacts&amp;a=view&amp;contact_id=<?php echo $contact->contact_id; ?>"><?php echo $contact->contact_first_name; ?> <?php echo $contact->contact_last_name; ?></a> <a href="mailto:<?php echo $contact->contact_email; ?>"><img border="0" src="<?php echo w2PfindImage('stock_attach-16.png'); ?>" /></a>)<?php
+                                    ?>&nbsp;(Re: <a href="./index.php?m=contacts&amp;a=view&amp;contact_id=<?php echo $contact->contact_id; ?>"><?php echo CTodo::e($contact->contact_first_name . ' ' . $contact->contact_last_name); ?></a> <a href="mailto:<?php echo CTodo::e($contact->contact_email); ?>"><img border="0" src="<?php echo w2PfindImage('stock_attach-16.png'); ?>" /></a>)<?php
                                 } ?>
                             </td>
                         </tr>
