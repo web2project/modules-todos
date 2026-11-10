@@ -41,7 +41,12 @@ global $cal_sdf;
     <input type="hidden" name="dosql" value="do_todo_aed" />
     <input type="hidden" name="del" value="0" />
     <input type="hidden" name="todo_id" value="<?php echo $todo_id;?>" />
-    <input type="hidden" name="return_module" value="<?php echo $m; ?>" />
+    <input type="hidden" name="return_module" value="<?php echo CTodo::e($m); ?>" />
+    <?php
+        // On a Project, Contact or Company page, come back to that page.
+        $returnIds = array('projects' => $project_id, 'contacts' => $contact_id, 'companies' => $company_id);
+    ?>
+    <input type="hidden" name="return_id" value="<?php echo isset($returnIds[$m]) ? (int) $returnIds[$m] : 0; ?>" />
 
     <table border="0" cellpadding="4" cellspacing="0" width="100%" class="std">
         <tr>

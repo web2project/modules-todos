@@ -3,7 +3,7 @@ if (!defined('W2P_BASE_DIR'))
 {
     die('You should not access this file directly.');
 }
-global $AppUI, $project_id, $contact_id, $company_id, $tab, $owner;
+global $AppUI, $m, $project_id, $contact_id, $company_id, $owner;
 
 $todo = new CTodo();
 // also needed when the list is a tab on another module's page

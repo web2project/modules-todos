@@ -36,12 +36,16 @@ if (is_array($result)) {
 }
 if ($result) {
     $AppUI->setMsg('Todos '.$action, UI_MSG_OK, true);
+    $return_id = (int) w2PgetParam($_POST, 'return_id', 0);
     switch($return_module) {
         case 'projects':
-            $success = 'm=projects&a=view&project_id='.$obj->todo_project;
+            $success = 'm=projects&a=view&project_id=' . ($return_id ? $return_id : (int) $obj->todo_project);
             break;
         case 'contacts':
-            $success = 'm=contacts&a=view&contact_id='.$obj->todo_contact;
+            $success = 'm=contacts&a=view&contact_id=' . ($return_id ? $return_id : (int) $obj->todo_contact);
+            break;
+        case 'companies':
+            $success = 'm=companies&a=view&company_id=' . $return_id;
             break;
         default:
             $success = 'm=todos';
