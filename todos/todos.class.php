@@ -45,7 +45,7 @@ class CTodo extends w2p_Core_BaseObject
 
 	public function getClosedTodosForDateRange($user_id = 0)
     {
-		$user_id = ($user_id) ? $user_id : $this->_AppUI->user_id;
+		$user_id = ((int) $user_id) ? (int) $user_id : (int) $this->_AppUI->user_id;
 
         $q = $this->_getQuery();
 		$q->addQuery('st.*');
@@ -70,6 +70,11 @@ class CTodo extends w2p_Core_BaseObject
 
 	public function getTodosForDateRange($dateRangeName, $user_id = 0, $project_id = 0, $contact_id = 0, $company_id = 0)
 	{
+        $user_id = (int) $user_id;
+        $project_id = (int) $project_id;
+        $contact_id = (int) $contact_id;
+        $company_id = (int) $company_id;
+
         $today = date('Y-m-d 23:59:59');
         $today = $this->_AppUI->convertToSystemTZ($today);
 
@@ -127,13 +132,8 @@ class CTodo extends w2p_Core_BaseObject
         }
 
         if ($company_id > 0 && $this->_perms->checkModuleItem('companies', 'view', $company_id)) {
-            $projects = CCompany::getProjects($this->_AppUI, $company_id);
-            $project_id_string = '';
-            foreach ($projects as $project) {
-                $project_id_string .= $project['project_id'].',';
-            }
-            $project_id_string .= '-1';
-            $q->addWhere("st.todo_project IN ($project_id_string)");
+            // The project permissions are already applied through pr above.
+            $q->addWhere('pr.project_company = ' . $company_id);
         }
 
         if ($contact_id > 0 && $this->_perms->checkModuleItem('contacts', 'view', $contact_id)) {
@@ -157,6 +157,8 @@ class CTodo extends w2p_Core_BaseObject
      */
 	public function getOpenTodoItems($userId, $days = 30)
     {
+        $userId = (int) $userId;
+        $days = (int) $days;
 		$q = $this->_getQuery();
 		$q->addQuery('todo_id as id');
 		$q->addQuery('todo_name as name');
@@ -502,6 +504,8 @@ class CTodo extends w2p_Core_BaseObject
         $search['table_orderby'] = 'todo_name';
         $search['search_fields'] = array('todo_name');
         $search['display_fields'] = $search['search_fields'];
+        // only the user's own open todos; deleted ones have a status of -1
+        $search['table_extra'] = 't.todo_status = 1 AND t.todo_owner = ' . (int) $this->_AppUI->user_id;
 
         return $search;
     }

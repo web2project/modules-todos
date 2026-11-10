@@ -15,7 +15,7 @@ $todoCategories = w2PgetSysVal('TodoType');
         <td id="todos_list" style="width: 100%; vertical-align: top;" data-nonce="<?php echo $AppUI->getFormToken(); ?>" data-error="<?php echo $AppUI->_('The todo could not be updated. Please reload the page and try again.'); ?>">
             <?php
             foreach ($projects as $data) {
-                $todos = $todo->loadAll('todo_due_date', 'todo_status = 1 AND todo_owner = ' . $AppUI->user_id . ' AND todo_project = ' . $data['project_id']);
+                $todos = $todo->loadAll('todo_due_date', 'todo_status = 1 AND todo_owner = ' . (int) $AppUI->user_id . ' AND todo_project = ' . (int) $data['project_id']);
 
                 if (count($todos)) {
                     echo '<strong>' . CTodo::e($data['project_id'] ? $data['project_name'] : $AppUI->_($data['project_name'], UI_OUTPUT_RAW)) . '</strong>';
