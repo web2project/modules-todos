@@ -9,6 +9,16 @@ if (!defined('W2P_BASE_DIR'))
 
 class CTodo extends w2p_Core_BaseObject
 {
+    /**
+     * The due date stored for "Later" / no due date. It sorts after every
+     *   real date, so the "Later" bucket and the ordering need no special
+     *   cases, and it is never converted between timezones.
+     *
+     * Before v3.0 this was 2020-01-01 (now in the past, so every "Later"
+     *   item showed as Overdue); the v3.0 upgrade converts those rows.
+     */
+    const NO_DUE_DATE = '9999-12-31 23:59:59';
+
 	public $todo_id = 0;
 	public $todo_name = '';
 	public $todo_due_date = '';
@@ -195,7 +205,9 @@ class CTodo extends w2p_Core_BaseObject
         $q = $this->_getQuery();
         $this->todo_updated = $q->dbfnNowWithTZ();
         $this->todo_due_date = $this->resolveTimeframeEnd($this->_AppUI);
-        $this->todo_due_date = $this->_AppUI->convertToSystemTZ($this->todo_due_date);
+        if (self::hasDueDate($this->todo_due_date)) {
+            $this->todo_due_date = $this->_AppUI->convertToSystemTZ($this->todo_due_date);
+        }
     }
 
     public function hook_preCreate() {
@@ -209,7 +221,11 @@ class CTodo extends w2p_Core_BaseObject
     {
 		$dateInfo = array();
 		
-		if ($this->todo_due_date != '') {
+		if ($this->todo_id && !self::hasDueDate($this->todo_due_date)) {
+			$dateInfo['displayName'] = 'later';
+			$dateInfo['cleanFormat'] = '';
+			$dateInfo['displayFormat'] = '';
+		} elseif ($this->todo_due_date != '') {
 			$timeString = strtotime($this->todo_due_date);
 			if ($timeString > time()) {
 				//TODO: if the date translates to something easy like today or tomorrow, it should be set accordingly
@@ -313,13 +329,24 @@ class CTodo extends w2p_Core_BaseObject
 				$endDate = date('Y-m', $mondayAfterNext).date('-d', $mondayAfterNext);
 				break;
 			default:
-				//defaults to later scenario
-				$endDate = '2020-01-01';
-				break;
+				// the "later" scenario: no due date
+				return self::NO_DUE_DATE;
 		}
 
 		return $endDate.' 23:59:59';
 	}
+
+    /**
+     * Whether a stored due date is a real date rather than "Later".
+     *
+     * @param string|null $dueDate
+     *
+     * @return bool
+     */
+    public static function hasDueDate($dueDate)
+    {
+        return '' != (string) $dueDate && self::NO_DUE_DATE != $dueDate;
+    }
 
 	public function hook_calendar($userId)
     {
@@ -351,7 +378,7 @@ class CTodo extends w2p_Core_BaseObject
             <a href="?m=todos&amp;todo_id=<?php echo $todoItem['todo_id']; ?>"><?php echo w2PshowImage('icons/pencil.gif', 16, 16, ''); ?></a>
             <input type="checkbox" onClick="markItemComplete(<?php echo $todoItem['todo_id']; ?>)" />
             <em><?php echo $this->_AppUI->_($todoCategories[$todoItem['todo_category']]); ?></em>
-            <?php if (in_array($dateRangeName, array('overdue', 'later')) && date('Y', strtotime($todoItem['todo_due'])) != 2020) { ?>
+            <?php if (in_array($dateRangeName, array('overdue', 'later')) && self::hasDueDate($todoItem['todo_due'])) { ?>
                 <?php
                 echo $this->_AppUI->formatTZAwareTime($todoItem['todo_due_date'], '%b %d').' - ';
             } ?>

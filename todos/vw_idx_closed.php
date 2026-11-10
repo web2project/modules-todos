@@ -36,7 +36,7 @@ $todoCategories = w2PgetSysVal('TodoType');
                         ?>
                         <tr id="row_<?php echo $todoItem['todo_id']; ?>">
                             <td nowrap="true" width="5%">
-                                <?php if ('2020' != substr($todoItem['todo_due_date'], 0, 4)) { ?>
+                                <?php if (CTodo::hasDueDate($todoItem['todo_due_date'])) { ?>
                                     <?php echo substr($todoItem['todo_due_date'], 0, 10); ?>
                                 <?php } else { ?>
                                     <?php echo $AppUI->_('Later'); ?>
@@ -44,7 +44,7 @@ $todoCategories = w2PgetSysVal('TodoType');
                             </td>
                             <td id="cell_<?php echo $todoItem['todo_id']; ?>">
                                 <em><?php echo $todoCategories[$todoItem['todo_category']]; ?></em>
-                                <?php if ($todoItem['todo_due_date'] > 0 && date('Y', strtotime($todoItem['todo_due_date'])) != 2020) { ?>
+                                <?php if (CTodo::hasDueDate($todoItem['todo_due_date'])) { ?>
                                     <?php echo date('M d', strtotime($todoItem['todo_due_date']));  ?> -
                                 <?php } ?>
                                 <?php echo w2p_textarea($todoItem['todo_name']); ?>

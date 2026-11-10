@@ -12,7 +12,7 @@ if (!defined('W2P_BASE_DIR')){
 
 $config = array();
 $config['mod_name']        = 'Todos';
-$config['mod_version']     = '2.0.0';
+$config['mod_version']     = '3.0.0';
 $config['mod_directory']   = 'todos';               // tell web2project where to find this module
 $config['mod_setup_class'] = 'CSetupTodos';         // the name of the PHP setup class (used below)
 $config['mod_type']        = 'user';                // 'core' for modules distributed with w2p by standard, 'user' for additional modules
@@ -45,7 +45,7 @@ class CSetupTodos extends w2p_System_Setup
         $sql = '(
             `todo_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
             `todo_name` text NOT NULL,
-            `todo_due_date` datetime NOT NULL DEFAULT \'2038-01-01\',
+            `todo_due_date` datetime NOT NULL DEFAULT \'' . CTodo::NO_DUE_DATE . '\',
             `todo_project` int(10) NOT NULL DEFAULT 0,
             `todo_owner` int(10) NOT NULL DEFAULT 0,
             `todo_category` int(10) NOT NULL DEFAULT 0,
@@ -75,12 +75,45 @@ class CSetupTodos extends w2p_System_Setup
             case '1.3.0':
                 $this->_renameFieldsToMatchConventions();
             case '1.4':
-            case '1.4.1':                                   //current version
+            case '1.4.1':
+            case '2.0':
+            case '2.0.0':
+                if (!$this->_convertNoDueDates()) {
+                    return false;
+                }
+            case '3.0.0':                                   //current version
             default:
 				//do nothing
 		}
 		return true;
 	}
+
+    /**
+     * Before v3.0 "Later" was stored as 2020-01-01 23:59:59 in the user's
+     *   timezone (so 2020-01-01 or 2020-01-02 once shifted to UTC), and the
+     *   column defaulted to 2038-01-01. 2020 is now in the past, so those
+     *   items showed as Overdue. Both become CTodo::NO_DUE_DATE.
+     *
+     * @return bool
+     */
+    private function _convertNoDueDates()
+    {
+        $q = $this->_getQuery();
+        $q->alterTable('todos');
+        $q->createDefinition(array(array('action' => 'MODIFY', 'type' => '',
+            'spec' => "todo_due_date datetime NOT NULL DEFAULT '" . CTodo::NO_DUE_DATE . "'")));
+        if (!$q->exec()) {
+            return false;
+        }
+
+        $q->clear();
+        $q->addTable('todos');
+        $q->addUpdate('todo_due_date', CTodo::NO_DUE_DATE);
+        $q->addWhere("(todo_due_date BETWEEN '2020-01-01 00:00:00' AND '2020-01-02 23:59:59'"
+            . " OR todo_due_date = '2038-01-01 00:00:00')");
+
+        return (bool) $q->exec();
+    }
 
 	public function remove()
 	{ 
