@@ -8,7 +8,7 @@ $todo_id = (int) w2PgetParam($_GET, 'todo_id', 0);
 $todo = new CTodo();
 $todo->load($todo_id);
 
-$AppUI->loadCalendarJS();
+$AppUI->getTheme()->loadCalendarJS();
 $df = $AppUI->getPref('SHDATEFORMAT');
 global $cal_sdf;
 
