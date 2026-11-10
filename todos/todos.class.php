@@ -541,7 +541,7 @@ class CTodo extends w2p_Core_BaseObject
             <input type="checkbox" onClick="markItemComplete(<?php echo $todoItem['todo_id']; ?>)" />
             <?php } ?>
             <em><?php echo $this->_AppUI->_(isset($todoCategories[$todoItem['todo_category']]) ? $todoCategories[$todoItem['todo_category']] : ''); ?></em>
-            <?php if (in_array($dateRangeName, array('overdue', 'later')) && self::hasDueDate($todoItem['todo_due'])) { ?>
+            <?php if (in_array($dateRangeName, array('overdue', 'later')) && self::hasDueDate($todoItem['todo_due_date'])) { ?>
                 <?php
                 echo $this->_AppUI->formatTZAwareTime($todoItem['todo_due_date'], '%b %d').' - ';
             } ?>
