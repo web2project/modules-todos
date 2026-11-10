@@ -35,9 +35,6 @@ global $cal_sdf;
             fld_real_date.value = '';
         }
     }
-    window.addEvent('domready', function() {
-        $('todo_title').focus();
-    });
 </script>
 
 <form name="addTodoItem" id="addTodoItem" action="?m=todos" method="post">
