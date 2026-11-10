@@ -1,14 +1,16 @@
-TodoList v2.0
+TodoList v3.0
 CaseySoftware, LLC
 
 
-** This module will not work with any version of web2project prior to v3.0! **
+** v3.0 of this module requires web2project v5.0 or later and PHP 8.3 or later. Use v2.0 for web2project v3.x and v4.x. **
 
 The TodoList module handles simple todo management for web2project. Todo items are different from Tasks in that a todo is either done or not done. They don't have a percent complete or a true duration therefore, they don't make sense as Tasks. These items can optionally be attached to specific Projects, Contacts, or both.
 
 COMPATIBLE VERSIONS
 
 =====================================
+
+* v3.0 of this module has been updated for web2project v5.0 (PHP 8.3+, MySQL 8 strict mode, the Bootstrap theme) and refuses to install on anything older.
 
 * v2.0 of this module added some Getting Things Done concepts in only displaying the next few items for any given project.
 
@@ -20,6 +22,17 @@ COMPATIBLE VERSIONS
 
 Changelog
 =====================================
+
+3.0  Updated for web2project v5.0
+-  Requires web2project v5.0+ and PHP 8.3+; loads on PHP 8 again (CTodo::delete() signature);
+-  Completing and deleting items works with web2project's form tokens and only hides the item once it is saved;
+-  "Later" items are stored as 9999-12-31 instead of 2020-01-01, so they no longer show as Overdue; completing an item keeps its due date;
+-  Today, This Week and so on follow the user's timezone and the locale's first day of the week;
+-  A todo can only be changed by its owner, by people who can edit its project, or by admins; names are escaped in every list;
+-  Bootstrap layout and icons, a native date picker, and an add form that stays in view;
+-  The GTD views use a single query and follow the Owner filter; the Todolist tabs on Projects, Contacts and Companies work and return to their page;
+-  Upgrades run every step a version needs, work under MySQL 8 strict mode and add indexes;
+-  Complete Brazilian Portuguese translation and an English key list for translators.
 
 2.0  Major version update to denote that anything before 3.0-pre is not compatible
 -  Tweaked the layouts to use less tables and more simple css;
@@ -45,7 +58,7 @@ KNOWN ISSUES
 
 Open Issues:
 
-*  The Add Edit form is static and attached to the top of the page by default, this should be moved to track the user.
+*  The module can't set its own icon in the Bootstrap sidebar, so it shows the generic one until web2project offers a way for add-on modules to do that.
 
 INSTALL
 
@@ -55,15 +68,17 @@ INSTALL
 
 1.  To install this module, please follow the standard module installation procedure.  Download the latest version and unzip this directory into your web2project/modules directory.
 
-2.  Select to System Admin -> View Modules and you should see "todos" near the bottom of the list.
+2.  Go to System Admin -> View Modules and you should see "todos" near the bottom of the list.
 
-3.  On the "TodoList" row, select "install".  The screen should refresh.  Now select "hidden" and then "disabled" from the same row to make it display in your module navigation.
+3.  On the "Todos" row, select "install".  The screen should refresh.  Now select "disabled" to make it active and "hidden" to make it visible in your module navigation.
+
+4.  Upgrading from an earlier version: overwrite the files, then select "upgrade" on the "Todos" row. Back up the todos table first; the upgrade converts the stored "Later" dates and changes the table.
 
 USAGE
 
 =====================================
 
-1.  Within the TodoList module, fill in the form and hit "save!"
+1.  Within the TodoList module, fill in the form and hit "save"
 
 2.  If you've attached the todo item to a Project or Contact, it should appear on the related View screens under the proper tabs.
 
