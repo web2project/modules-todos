@@ -573,10 +573,14 @@ class CTodo extends w2p_Core_BaseObject
 
         switch ($this->todo_due_date) {
 			case 'other':
-				$endDate = (int) w2PgetParam($_POST, 'display_todo_date', '2100-01-01');
-				if ($endDate != '2020-01-01') {
-					$endDate = substr($endDate, 0, 4).'-'.substr($endDate, 4, 2).'-'.substr($endDate, 6, 2);
+				// the calendar fills display_todo_date as Ymd
+				$picked = (string) w2PgetParam($_POST, 'display_todo_date', '');
+				$date = DateTimeImmutable::createFromFormat('!Ymd', $picked);
+				if (!$date || $date->format('Ymd') !== $picked) {
+					// no valid date was picked; isValid() reports it
+					return '';
 				}
+				$endDate = $date->format('Y-m-d');
 				break;
 			// these are the user's own days (see _userToday()); the caller
 			//   converts the result to UTC
