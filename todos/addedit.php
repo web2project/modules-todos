@@ -42,7 +42,7 @@ if ($todo instanceof CTodo) {
             <div class="d-flex flex-wrap align-items-center gap-2">
                 <?php
                     array_shift($todoTimeframes);
-                    $todoTimeframes['other'] = 'Other';
+                    $todoTimeframes['other'] = $AppUI->_('Other');
 
                     $dateInfo = $todo->renderTimeframe();
                     echo arraySelect( $todoTimeframes, 'todo_due_date', 'class="form-select form-select-sm w-auto"', $dateInfo['displayName']);
@@ -91,7 +91,7 @@ if ($todo instanceof CTodo) {
             ?>
         </div>
         <div>
-            <input class="btn btn-primary btn-sm" type="submit" value="save!" id="submitter" />
+            <input class="btn btn-primary btn-sm" type="submit" value="<?php echo $AppUI->_('save'); ?>" id="submitter" />
         </div>
     </div>
 </form>

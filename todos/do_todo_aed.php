@@ -30,7 +30,8 @@ if (w2PgetParam($_POST, 'ajax', 0)) {
 }
 
 if ($result) {
-    $AppUI->setMsg('Todos '.$action, UI_MSG_OK, true);
+    // one key per message, so translations aren't left with a stray English word
+    $AppUI->setMsg($del ? 'Todo deleted' : ($complete ? 'Todo completed' : 'Todo stored'), UI_MSG_OK, true);
     $return_id = (int) w2PgetParam($_POST, 'return_id', 0);
     switch($return_module) {
         case 'projects':

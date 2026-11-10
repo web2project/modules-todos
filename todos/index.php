@@ -18,7 +18,7 @@ if (isset($_POST['todo_user'])) {
 }
 $owner = $AppUI->getState('TodoOwner') !== null ? $AppUI->getState('TodoOwner') : $AppUI->user_id;
 
-$user_list[0] = 'All Users';
+$user_list[0] = $AppUI->_('All Users');
 $user_list += $users = $perms->getPermittedUsers('projects');
 
 $titleBlock = new w2p_Theme_TitleBlock('TodoList', '', $m);
