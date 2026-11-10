@@ -57,8 +57,7 @@ class CTodo extends w2p_Core_BaseObject
         $q->addQuery('p.project_name, p.project_color_identifier, p.project_company');
         $q->leftJoin('projects', 'p', 'p.project_id = st.todo_project');
 
-        $q->addQuery('c.contact_first_name, c.contact_last_name');
-        $q->leftJoin('contacts', 'c', 'c.contact_id = st.todo_contact');
+        $this->_joinContact($q, 'st.todo_contact');
 
         $this->_restrictToAllowedProjects($q, 'st.todo_project');
 
@@ -111,6 +110,7 @@ class CTodo extends w2p_Core_BaseObject
 
         $q->addQuery('pr.project_name, pr.project_color_identifier, pr.project_company');
         $q->leftJoin('projects', 'pr', 'pr.project_id = st.todo_project');
+        $this->_joinContact($q, 'st.todo_contact');
 
         $this->_restrictToAllowedProjects($q, 'st.todo_project');
         if ($project_id > 0) {
@@ -152,6 +152,46 @@ class CTodo extends w2p_Core_BaseObject
     }
 
     /**
+     * Adds the related contact's name and email to a todo list query, so
+     *   the lists don't load a CContact per row.
+     *
+     * @param w2p_Database_Query $q
+     * @param string             $column the todo_contact column, with alias
+     */
+    protected function _joinContact($q, $column)
+    {
+        $q->addQuery('c.contact_display_name, c.contact_email, c.contact_private, c.contact_owner');
+        $q->leftJoin('contacts', 'c', 'c.contact_id = ' . $column);
+    }
+
+    /**
+     * The " (Re: contact)" part of a list row, from the columns
+     *   _joinContact() adds. Someone else's private contact isn't named.
+     *
+     * @param array $todoItem
+     *
+     * @return string HTML
+     */
+    public function renderContact(array $todoItem)
+    {
+        if ((int) $todoItem['todo_contact'] < 1 || !isset($todoItem['contact_display_name'])) {
+            return '';
+        }
+        if ($todoItem['contact_private'] && (int) $todoItem['contact_owner'] != (int) $this->_AppUI->user_id) {
+            return '';
+        }
+
+        $html = '&nbsp;(' . $this->_AppUI->_('Re:') . ' <a href="./index.php?m=contacts&amp;a=view&amp;contact_id='
+            . (int) $todoItem['todo_contact'] . '">' . self::e($todoItem['contact_display_name']) . '</a>';
+        if ('' != (string) $todoItem['contact_email']) {
+            $html .= ' <a href="mailto:' . self::e($todoItem['contact_email']) . '"><img border="0" src="'
+                . w2PfindImage('stock_attach-16.png') . '" alt="' . $this->_AppUI->_('Email') . '" /></a>';
+        }
+
+        return $html . ')';
+    }
+
+    /**
      * The Getting Things Done views: the next few open todos for each
      *   project, soonest first, in one query. Todos without a project come
      *   first under project id 0.
@@ -171,6 +211,7 @@ class CTodo extends w2p_Core_BaseObject
         $q->addTable('todos', 'st');
         $q->addQuery('pr.project_name, pr.project_color_identifier');
         $q->leftJoin('projects', 'pr', 'pr.project_id = st.todo_project');
+        $this->_joinContact($q, 'st.todo_contact');
         $q->addWhere('st.todo_status = 1');
         if ($user_id) {
             $q->addWhere('st.todo_owner = ' . $user_id);
@@ -679,11 +720,7 @@ class CTodo extends w2p_Core_BaseObject
                                 <a href="./index.php?m=projects&amp;a=view&amp;project_id=<?php echo $todoItem['todo_project']; ?>" style="color: <?php echo bestColor(self::safeColor($todoItem['project_color_identifier'])) ?>;"><?php echo self::e($todoItem['project_name']); ?></a>
                             </span>
             <?php } ?>
-            <?php if ($todoItem['todo_contact'] > 0) {
-                $contact = new CContact();
-                $contact->load($todoItem['todo_contact']);
-                ?>&nbsp;(Re: <a href="./index.php?m=contacts&amp;a=view&amp;contact_id=<?php echo $contact->contact_id; ?>"><?php echo self::e($contact->contact_first_name . ' ' . $contact->contact_last_name); ?></a> <a href="mailto:<?php echo self::e($contact->contact_email); ?>"><img border="0" src="<?php echo w2PfindImage('stock_attach-16.png'); ?>" /></a>)<?php
-            } ?>
+            <?php echo $this->renderContact($todoItem); ?>
         </li>
     <?php
     }

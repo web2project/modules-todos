@@ -55,11 +55,7 @@ $todoCategories = w2PgetSysVal('TodoType');
                                         <a href="./index.php?m=projects&amp;a=view&amp;project_id=<?php echo $todoItem['todo_project']; ?>" style="color: <?php echo bestColor(CTodo::safeColor($todoItem['project_color_identifier'])) ?>;"><?php echo CTodo::e($todoItem['project_name']); ?></a>
                                     </span>
                                 <?php } ?>
-                                <?php if ($todoItem['todo_contact'] > 0) {
-                                    $contact = new CContact();
-                                    $contact->load($todoItem['todo_contact']);
-                                    ?>&nbsp;(Re: <a href="./index.php?m=contacts&amp;a=view&amp;contact_id=<?php echo $contact->contact_id; ?>"><?php echo CTodo::e($contact->contact_first_name . ' ' . $contact->contact_last_name); ?></a> <a href="mailto:<?php echo CTodo::e($contact->contact_email); ?>"><img border="0" src="<?php echo w2PfindImage('stock_attach-16.png'); ?>" /></a>)<?php
-                                } ?>
+                                <?php echo $todo->renderContact($todoItem); ?>
                             </td>
                         </tr>
                         <?php
