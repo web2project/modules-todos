@@ -19,34 +19,7 @@ if ($todo instanceof CTodo) {
     $todo->load($todo_id);
 }
 
-$AppUI->getTheme()->loadCalendarJS();
-$df = $AppUI->getPref('SHDATEFORMAT');
-global $cal_sdf;
-
 ?>
-<script language="javascript" type="text/javascript">
-    function setDate( frm_name, f_date ) {
-        fld_date = eval( 'document.' + frm_name + '.' + f_date );
-        fld_real_date = eval( 'document.' + frm_name + '.' + 'display_' + f_date );
-        document.getElementById('todo_due_date').value = 'other';
-        fld_date.style.width = '10';
-        fld_date.style.border = '1';
-
-        if (fld_date.value.length>0) {
-          if ((parseDate(fld_date.value))==null) {
-                alert('The Date/Time you typed does not match your prefered format, please retype.');
-                fld_real_date.value = '';
-                fld_date.style.backgroundColor = 'red';
-            } else {
-                fld_real_date.value = formatDate(parseDate(fld_date.value), 'yyyyMMdd');
-                fld_date.value = formatDate(parseDate(fld_date.value), '<?php echo $cal_sdf ?>');
-                fld_date.style.backgroundColor = '';
-            }
-        } else {
-            fld_real_date.value = '';
-        }
-    }
-</script>
 
 <form name="addTodoItem" id="addTodoItem" action="?m=todos" method="post">
     <input type="hidden" name="dosql" value="do_todo_aed" />
@@ -74,11 +47,8 @@ global $cal_sdf;
                     $dateInfo = $todo->renderTimeframe();
                     echo arraySelect( $todoTimeframes, 'todo_due_date', 'size="1" class="text"', $dateInfo['displayName']);
                 ?> or
-                <a onclick="return showCalendar('todo_date', '<?php echo $df ?>', 'addTodoItem', null, true)" href="javascript: void(0);">
-                    <img src="<?php echo w2PfindImage('calendar.gif'); ?>" width="24" height="12" alt="<?php echo $AppUI->_('Calendar'); ?>" border="0" />
-                </a>
                 <input type="hidden" name="display_todo_date" id="display_todo_date" value="<?php echo $dateInfo['cleanFormat']; ?>" />
-                <input type="text" class="text" name="todo_date" id="todo_date" size="11" value="<?php echo $dateInfo['displayFormat']; ?>" />
+                <input type="date" class="text" id="todo_date" value="<?php echo $dateInfo['displayFormat']; ?>" aria-label="<?php echo $AppUI->_('Due date'); ?>" onchange="w2pTodos.pickDate(this);" />
             </td>
         </tr>
         <tr>

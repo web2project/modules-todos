@@ -42,5 +42,13 @@ var w2pTodos = {
     remove: function (todoId) {
         w2pTodos.post(todoId, 'del');
         return false;
+    },
+    // The add/edit form's date field: picking a date selects "other" and
+    //   posts the date as Ymd in display_todo_date.
+    pickDate: function (input) {
+        $('#display_todo_date').val(input.value.replace(/-/g, ''));
+        if (input.value) {
+            $('#todo_due_date').val('other');
+        }
     }
 };

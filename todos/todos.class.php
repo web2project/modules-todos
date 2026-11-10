@@ -425,7 +425,8 @@ class CTodo extends w2p_Core_BaseObject
 			//   'today' moved an overdue todo to today on every save.
 			$dateInfo['displayName'] = 'other';
 			$dateInfo['cleanFormat'] = $due->format('Ymd');
-			$dateInfo['displayFormat'] = $due->format('Y/M/d');
+			// the value of the <input type="date"> in the form
+			$dateInfo['displayFormat'] = $due->format('Y-m-d');
 			$today = $this->_userToday();
 			if ($due->format('Y-m-d') == $today->format('Y-m-d')) {
 				$dateInfo['displayName'] = 'today';
