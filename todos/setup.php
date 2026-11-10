@@ -34,9 +34,9 @@ class CSetupTodos extends w2p_System_Setup
 {
 	public function install()
 	{
-        $result = $this->_checkRequirements();
-
-        if (!$result) {
+        // _meetsRequirements() only returns the result of the last check,
+        //   so also look at the errors it collected along the way.
+        if (!$this->_meetsRequirements() || count((array) $this->getErrors())) {
             return false;
         }
 
