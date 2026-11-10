@@ -74,47 +74,35 @@ class CTodo extends w2p_Core_BaseObject
         $contact_id = (int) $contact_id;
         $company_id = (int) $company_id;
 
-        $today = date('Y-m-d 23:59:59');
-        $today = $this->_AppUI->convertToSystemTZ($today);
-
-        $tomorrow = date('Y-m-d 23:59:59', strtotime('tomorrow'));
-        $tomorrow = $this->_AppUI->convertToSystemTZ($tomorrow);
-
-        $dayAfterTomorrow = date('Y-m-d 23:59:59', strtotime('tomorrow +1 day'));
-        $dayAfterTomorrow = $this->_AppUI->convertToSystemTZ($dayAfterTomorrow);
-//TODO: this should grab the 'end of week' variable from CORE
-        $thisSunday = date('Y-m-d 23:59:59', strtotime('this Sunday +1 day'));
-        $thisSunday = $this->_AppUI->convertToSystemTZ($thisSunday);
-        
-        $nextSunday = date('Y-m-d 23:59:59', strtotime('this Sunday +8 day'));
-        $nextSunday = $this->_AppUI->convertToSystemTZ($nextSunday);
+        // Day boundaries in the user's timezone, as stored (UTC) values.
+        $b = $this->getTimeframeBoundaries();
 
         $q = $this->_getQuery();
 		$q->addQuery('st.*');
 		$q->addTable('todos', 'st');
 		switch ($dateRangeName) {
 			case 'overdue':
-				$q->addWhere("st.todo_due_date < '$today'");
+				$q->addWhere("st.todo_due_date < '{$b['today']}'");
 				break;
 			case 'today':
-				$q->addWhere("st.todo_due_date >= '$today'");
-                $q->addWhere("st.todo_due_date < '$tomorrow'");
+				$q->addWhere("st.todo_due_date >= '{$b['today']}'");
+                $q->addWhere("st.todo_due_date < '{$b['tomorrow']}'");
 				break;
 			case 'tomorrow':
-                $q->addWhere("st.todo_due_date >= '$tomorrow'");
-                $q->addWhere("st.todo_due_date < '$dayAfterTomorrow'");
+                $q->addWhere("st.todo_due_date >= '{$b['tomorrow']}'");
+                $q->addWhere("st.todo_due_date < '{$b['this-week']}'");
 				break;
 			case 'this-week':
-                $q->addWhere("st.todo_due_date >= '$dayAfterTomorrow'");
-                $q->addWhere("st.todo_due_date < '$thisSunday'");
+                $q->addWhere("st.todo_due_date >= '{$b['this-week']}'");
+                $q->addWhere("st.todo_due_date < '{$b['next-week']}'");
 				break;
 			case 'next-week':
-                $q->addWhere("st.todo_due_date >= '$thisSunday'");
-                $q->addWhere("st.todo_due_date <= '$nextSunday'");
+                $q->addWhere("st.todo_due_date >= '{$b['next-week']}'");
+                $q->addWhere("st.todo_due_date < '{$b['later']}'");
 				break;
 			case 'later':
             default:
-                $q->addWhere("st.todo_due_date > '$nextSunday'");
+                $q->addWhere("st.todo_due_date >= '{$b['later']}'");
 		}
 		$q->addWhere('st.todo_status = 1');
         if ($user_id) {
@@ -404,12 +392,14 @@ class CTodo extends w2p_Core_BaseObject
 			$dateInfo['cleanFormat'] = '';
 			$dateInfo['displayFormat'] = '';
 		} elseif ($this->todo_due_date != '') {
-			$timeString = strtotime($this->todo_due_date);
-			if ($timeString > time()) {
+			// stored in UTC; shown as the user's own date
+			$due = new DateTime($this->todo_due_date, new DateTimeZone('UTC'));
+			$due->setTimezone($this->_userTimezone());
+			if ($due->getTimestamp() > time()) {
 				//TODO: if the date translates to something easy like today or tomorrow, it should be set accordingly
 				$dateInfo['displayName'] = 'other';
-				$dateInfo['cleanFormat'] = date('Ymd', $timeString);
-				$dateInfo['displayFormat'] = date('Y/M/d', $timeString);
+				$dateInfo['cleanFormat'] = $due->format('Ymd');
+				$dateInfo['displayFormat'] = $due->format('Y/M/d');
 			} else {
 				$dateInfo['displayName'] = 'today';
 			}
@@ -473,6 +463,82 @@ class CTodo extends w2p_Core_BaseObject
 		return $allowedContacts;
 	}
 
+    /**
+     * The first moment of each list bucket, as stored (UTC) values:
+     *   'today', 'tomorrow', 'this-week' (the day after tomorrow),
+     *   'next-week' and 'later'. Days and weeks are the user's: their
+     *   TIMEZONE preference and the locale's first day of the week. When
+     *   the week ends today or tomorrow, the This Week bucket is empty.
+     *
+     * @return array<string, string>
+     */
+    public function getTimeframeBoundaries()
+    {
+        $today = $this->_userToday();
+        $dayAfterTomorrow = $today->modify('+2 day');
+        $nextWeek = $this->_lastDayOfWeek($today)->modify('+1 day');
+        if ($nextWeek < $dayAfterTomorrow) {
+            $nextWeek = $dayAfterTomorrow;
+        }
+        $later = $this->_lastDayOfWeek($today)->modify('+8 day');
+
+        $utc = new DateTimeZone('UTC');
+        $boundaries = array(
+            'today'     => $today,
+            'tomorrow'  => $today->modify('+1 day'),
+            'this-week' => $dayAfterTomorrow,
+            'next-week' => $nextWeek,
+            'later'     => $later,
+        );
+        foreach ($boundaries as $name => $day) {
+            $boundaries[$name] = $day->setTimezone($utc)->format('Y-m-d H:i:s');
+        }
+
+        return $boundaries;
+    }
+
+    /**
+     * The user's timezone, the same one CAppUI::convertToSystemTZ() uses.
+     *
+     * @return DateTimeZone
+     */
+    protected function _userTimezone()
+    {
+        $timezone = $this->_AppUI->getPref('TIMEZONE');
+        try {
+            return new DateTimeZone($timezone ? $timezone : date_default_timezone_get());
+        } catch (Exception $e) {
+            return new DateTimeZone('UTC');
+        }
+    }
+
+    /**
+     * Midnight at the start of the user's today.
+     *
+     * @return DateTimeImmutable
+     */
+    protected function _userToday()
+    {
+        return new DateTimeImmutable('today', $this->_userTimezone());
+    }
+
+    /**
+     * The last day of the week $day is in, using the locale's first day of
+     *   the week (LOCALE_FIRST_DAY: 0 = Sunday, 1 = Monday).
+     *
+     * @param DateTimeImmutable $day
+     *
+     * @return DateTimeImmutable
+     */
+    protected function _lastDayOfWeek(DateTimeImmutable $day)
+    {
+        $firstDay = defined('LOCALE_FIRST_DAY') ? (int) LOCALE_FIRST_DAY : 0;
+        $lastDay = ($firstDay + 6) % 7;
+        $daysLeft = ($lastDay - (int) $day->format('w') + 7) % 7;
+
+        return $day->modify('+' . $daysLeft . ' day');
+    }
+
 	protected function resolveTimeframeEnd()
 	{
 
@@ -483,28 +549,19 @@ class CTodo extends w2p_Core_BaseObject
 					$endDate = substr($endDate, 0, 4).'-'.substr($endDate, 4, 2).'-'.substr($endDate, 6, 2);
 				}
 				break;
+			// these are the user's own days (see _userToday()); the caller
+			//   converts the result to UTC
 			case 'today':
-				$endDate = date('Y-m-d');
+				$endDate = $this->_userToday()->format('Y-m-d');
 				break;
 			case 'tomorrow':
-				$endDate = date('Y-m-d', strtotime('tomorrow'));
+				$endDate = $this->_userToday()->modify('+1 day')->format('Y-m-d');
 				break;
 			case 'this-week':
-				//TODO: this should grab the 'end of week' variable from CORE
-				if (date('w') == 0) {
-					$endDate = date('Y-m-d');
-				} else {
-					$endDate = date('Y-m', strtotime('next Sunday')).date('-d', strtotime('next Sunday'));
-				}
+				$endDate = $this->_lastDayOfWeek($this->_userToday())->format('Y-m-d');
 				break;
 			case 'next-week':
-				//TODO: this should grab the 'end of week' variable from CORE
-				if (date('w') == 0) {
-					$mondayAfterNext = strtotime('+7 day');
-				} else {
-					$mondayAfterNext = strtotime('+7 day', strtotime('next Sunday'));
-				}
-				$endDate = date('Y-m', $mondayAfterNext).date('-d', $mondayAfterNext);
+				$endDate = $this->_lastDayOfWeek($this->_userToday())->modify('+7 day')->format('Y-m-d');
 				break;
 			default:
 				// the "later" scenario: no due date
