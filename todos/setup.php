@@ -27,7 +27,8 @@ $config['permissions_item_field'] = 'todo_id';
 $config['permissions_item_label'] = 'todo_name';
 
 $config['requirements'] = array(
-    array('require' => 'web2project',   'comparator' => '>=', 'version' => '3')
+    array('require' => 'php',           'comparator' => '>=', 'version' => '8.3'),
+    array('require' => 'web2project',   'comparator' => '>=', 'version' => '5')
 );
 
 class CSetupTodos extends w2p_System_Setup
