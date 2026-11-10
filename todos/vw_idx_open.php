@@ -6,6 +6,8 @@ if (!defined('W2P_BASE_DIR'))
 global $AppUI, $project_id, $contact_id, $company_id, $tab, $owner;
 
 $todo = new CTodo();
+// also needed when the list is a tab on another module's page
+$AppUI->getTheme()->addFooterJavascriptFile('modules/todos/todos.js');
 $todoTimeframes = $todo->getTimeframes();
 
 //TODO: this whole table mess should be converted over to nice divs

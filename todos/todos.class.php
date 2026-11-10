@@ -578,11 +578,11 @@ class CTodo extends w2p_Core_BaseObject
         ?>
         <li id="r<?php echo $todoItem['todo_id']; ?>">
             <?php if ($this->canChangeItem($todoItem)) { ?>
-            <a href="#" onClick="delIt(<?php echo $todoItem['todo_id']; ?>)">
+            <a href="#" onClick="return w2pTodos.remove(<?php echo $todoItem['todo_id']; ?>);">
                 <?php echo w2PshowImage('icons/stock_delete-16.png', 16, 16, ''); ?>
             </a>
             <a href="?m=todos&amp;todo_id=<?php echo $todoItem['todo_id']; ?>"><?php echo w2PshowImage('icons/pencil.gif', 16, 16, ''); ?></a>
-            <input type="checkbox" onClick="markItemComplete(<?php echo $todoItem['todo_id']; ?>)" />
+            <input type="checkbox" onClick="w2pTodos.complete(<?php echo $todoItem['todo_id']; ?>)" />
             <?php } ?>
             <em><?php echo $this->_AppUI->_(isset($todoCategories[$todoItem['todo_category']]) ? $todoCategories[$todoItem['todo_category']] : ''); ?></em>
             <?php if (in_array($dateRangeName, array('overdue', 'later')) && self::hasDueDate($todoItem['todo_due_date'])) { ?>

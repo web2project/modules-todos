@@ -10,6 +10,8 @@ if (!defined('W2P_BASE_DIR')) {
 global $AppUI, $owner;
 
 $todo = new CTodo();
+// also needed when the list is a tab on another module's page
+$AppUI->getTheme()->addFooterJavascriptFile('modules/todos/todos.js');
 $todoCategories = w2PgetSysVal('TodoType');
 $projects = $todo->getNextTodosByProject($owner, !empty($gtdActiveOnly));
 

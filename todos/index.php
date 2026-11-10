@@ -21,7 +21,6 @@ $owner = $AppUI->getState('TodoOwner') !== null ? $AppUI->getState('TodoOwner') 
 $user_list[0] = 'All Users';
 $user_list += $users = $perms->getPermittedUsers('projects');
 ?>
-<script src="./modules/todos/todos.js" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css" href="./modules/todos/todos.css" />
 <?php
 $titleBlock = new w2p_Theme_TitleBlock('TodoList', '', $m, "$m.$a");
