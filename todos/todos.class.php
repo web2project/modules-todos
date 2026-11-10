@@ -466,31 +466,24 @@ class CTodo extends w2p_Core_BaseObject
 		return $projectList;
 	}
 
+    /**
+     * The contacts a todo can be related to: those the user's company and
+     *   department permissions allow, minus other people's private ones.
+     *
+     * @return array contact id => display name, with a blank entry first
+     */
 	public function getContacts()
     {
-		//TODO: this should be converted to a core function
-		$company = new CCompany;
-		$allowedCompanies = $company->getAllowedSQL($this->_AppUI->user_id);
+        $uid = (int) $this->_AppUI->user_id;
+        $contact = new CContact();
+        // CContact::getAllowedRecords() only applies the company and
+        //   department rules when $extra is an array, so always pass one.
+        $extra = array('where' => '(contact_private = 0 OR contact_owner = ' . $uid
+            . ' OR contact_owner IS NULL OR contact_owner = 0)');
+        $contacts = $contact->getAllowedRecords($uid, 'contact_id, contact_display_name',
+            'contact_display_name', null, $extra);
 
-		$q = $this->_getQuery();
-		$q->addQuery('contact_id, contact_display_name');
-		$q->addQuery('contact_first_name, contact_last_name');
-		$q->addTable('contacts');
-		$q->addWhere('
-			(contact_private=0
-				OR (contact_private=1 AND contact_owner=' . $this->_AppUI->user_id . ')
-				OR contact_owner IS NULL OR contact_owner = 0
-			)');
-		$q->addWhere('contact_first_name IS NOT NULL');
-		$q->addWhere('contact_last_name IS NOT NULL');
-		//TODO: add filter for companies ACL
-		$q->addOrder('contact_first_name');
-		$q->addOrder('contact_last_name');
-		
-		$allowedContacts = array(0 => ' ');
-		$allowedContacts = $allowedContacts + $q->loadHashList();
-		
-		return $allowedContacts;
+        return array(0 => ' ') + $contacts;
 	}
 
     /**
