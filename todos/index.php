@@ -23,7 +23,7 @@ $user_list += $users = $perms->getPermittedUsers('projects');
 ?>
 <link rel="stylesheet" type="text/css" href="./modules/todos/todos.css" />
 <?php
-$titleBlock = new w2p_Theme_TitleBlock('TodoList', '', $m, "$m.$a");
+$titleBlock = new w2p_Theme_TitleBlock('TodoList', '', $m);
 $titleBlock->addCell('<table><tr><form action="?m=todos" method="post" name="userIdForm" accept-charset="utf-8"><td nowrap="nowrap" align="right">' . $AppUI->_('Owner') . '</td><td nowrap="nowrap" align="left">' . arraySelect($user_list, 'todo_user', 'size="1" class="text" onChange="document.userIdForm.submit();"', $owner, false) . '</td></form></tr></table>', '', '', '');
 $titleBlock->show();
 
