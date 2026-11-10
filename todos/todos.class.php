@@ -125,8 +125,7 @@ class CTodo extends w2p_Core_BaseObject
         $q->addQuery('pr.project_name, pr.project_color_identifier, pr.project_company');
         $q->leftJoin('projects', 'pr', 'pr.project_id = st.todo_project');
 
-        $projObj = new CProject();
-        $projObj->setAllowedSQL($this->_AppUI->user_id, $q, null, 'pr');
+        $this->_restrictToAllowedProjects($q, 'st.todo_project');
         if ($project_id > 0) {
             $q->addWhere("st.todo_project = $project_id");
         }
@@ -143,6 +142,27 @@ class CTodo extends w2p_Core_BaseObject
 
         return $q->loadList();
 	}
+
+    /**
+     * Limits a todo query to todos without a project or on a project the
+     *   user may see.
+     *
+     * CProject::setAllowedSQL() can't be used on the LEFT JOINed projects
+     *   table here: for a user with restricted project permissions it adds
+     *   "pr.project_id IN (...)", which is NULL for todos without a project,
+     *   so all of those disappeared.
+     *
+     * @param w2p_Database_Query $q
+     * @param string             $column the todo_project column, with alias
+     */
+    protected function _restrictToAllowedProjects($q, $column)
+    {
+        $project = new CProject();
+        $allowed = array_map('intval', array_keys($project->getAllowedProjects($this->_AppUI->user_id, false)));
+        $allowed[] = -1;
+
+        $q->addWhere('(' . $column . ' = 0 OR ' . $column . ' IN (' . implode(',', $allowed) . '))');
+    }
 
     /**
      * The  "description" field purposely not included as we don't have that
