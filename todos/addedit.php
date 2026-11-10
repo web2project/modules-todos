@@ -71,7 +71,7 @@ global $cal_sdf;
                     $availableAssignees = $AppUI->acl()->getPermittedUsers();
                     $availableAssignees = array(0 => '') + $availableAssignees;
                     if (count($availableAssignees) > 1) {
-                        echo arraySelect( $availableAssignees, 'todo_owner', 'size="1" class="text"', ($todo->todo_user ? $todo->todo_user : $AppUI->user_id) );
+                        echo arraySelect( $availableAssignees, 'todo_owner', 'size="1" class="text"', ($todo->todo_owner ? $todo->todo_owner : $AppUI->user_id) );
                     } else {
                         ?>
                         <input type="hidden" name="todo_owner" value="0" />
