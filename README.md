@@ -74,6 +74,18 @@ INSTALL
 
 4.  Upgrading from an earlier version: overwrite the files, then select "upgrade" on the "Todos" row. Back up the todos table first; the upgrade converts the stored "Later" dates and changes the table.
 
+TESTS
+
+=====================================
+
+The unit tests in todos/unit_tests use web2project's own test setup. With the module installed in modules/todos, run them from web2project's unit_tests directory:
+
+    ../vendor/bin/phpunit --bootstrap ./CommonSetup.php ../modules/todos/unit_tests
+
+To check the module with web2project's static analysis settings, run this from the web2project root:
+
+    vendor/bin/phpstan analyse -c phpstan.neon.dist modules/todos
+
 USAGE
 
 =====================================
