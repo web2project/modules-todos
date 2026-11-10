@@ -168,13 +168,26 @@ class CTodo extends w2p_Core_BaseObject
 		return $this->store();
 	}
 
-	public function delete()
-	{
-		$this->load();
-		$this->todo_status = -1;
+    /**
+     * Todos are soft-deleted: the row stays with a status of -1.
+     *
+     * The signature has to match w2p_Core_BaseObject::delete($oid = null);
+     *   since PHP 8 a narrower one is a compile-time fatal error.
+     *
+     * @param int|null $oid
+     *
+     * @return bool
+     */
+    public function delete($oid = null)
+    {
+        if ($oid) {
+            $this->todo_id = (int) $oid;
+        }
+        $this->load();
+        $this->todo_status = -1;
 
-		return $this->store();
-	}
+        return $this->store();
+    }
 
     public function hook_preStore() {
         parent::hook_preStore();
