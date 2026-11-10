@@ -53,7 +53,10 @@ class CSetupTodos extends w2p_System_Setup
             `todo_status` int(1) NOT NULL DEFAULT 1,
             `todo_created` datetime NOT NULL,
             `todo_updated` datetime NOT NULL,
-            PRIMARY KEY  (`todo_id`))
+            PRIMARY KEY  (`todo_id`),
+            KEY `idx_todo_owner` (`todo_owner`, `todo_status`, `todo_due_date`),
+            KEY `idx_todo_project` (`todo_project`),
+            KEY `idx_todo_contact` (`todo_contact`))
             ENGINE=MyISAM DEFAULT CHARSET=utf8 ';
         $q->createDefinition($sql);
         $q->exec();
@@ -78,7 +81,7 @@ class CSetupTodos extends w2p_System_Setup
             case '1.4.1':
             case '2.0':
             case '2.0.0':
-                if (!$this->_convertNoDueDates()) {
+                if (!$this->_convertNoDueDates() || !$this->_alignSchema()) {
                     return false;
                 }
             case '3.0.0':                                   //current version
@@ -87,6 +90,36 @@ class CSetupTodos extends w2p_System_Setup
 		}
 		return true;
 	}
+
+    /**
+     * Brings a pre-3.0 table in line with a fresh install: the 1.x -> 2.0
+     *   rename created todo_name as a nullable column, and there were no
+     *   indexes besides the primary key, while every list query filters on
+     *   owner, status and due date.
+     *
+     * @return bool
+     */
+    private function _alignSchema()
+    {
+        $q = $this->_getQuery();
+        $q->addTable('todos');
+        $q->addUpdate('todo_name', '');
+        $q->addWhere('todo_name IS NULL');
+        if (!$q->exec()) {
+            return false;
+        }
+
+        $q->clear();
+        $q->alterTable('todos');
+        $q->createDefinition(array(
+            array('action' => 'MODIFY', 'type' => '', 'spec' => 'todo_name text NOT NULL'),
+            array('action' => 'ADD', 'type' => 'INDEX', 'spec' => 'idx_todo_owner (todo_owner, todo_status, todo_due_date)'),
+            array('action' => 'ADD', 'type' => 'INDEX', 'spec' => 'idx_todo_project (todo_project)'),
+            array('action' => 'ADD', 'type' => 'INDEX', 'spec' => 'idx_todo_contact (todo_contact)'),
+        ));
+
+        return (bool) $q->exec();
+    }
 
     /**
      * Before v3.0 "Later" was stored as 2020-01-01 23:59:59 in the user's
