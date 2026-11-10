@@ -33,6 +33,16 @@ $config['requirements'] = array(
 
 class CSetupTodos extends w2p_System_Setup
 {
+    /**
+     * w2p_System_Setup's constructor sets $this->_query without declaring
+     *   it, which is a dynamic property deprecation on PHP 8.2+ (core
+     *   issue #550). Declaring it here keeps install, upgrade and remove
+     *   quiet until core declares it.
+     *
+     * @var w2p_Database_Query
+     */
+    protected $_query;
+
 	public function install()
 	{
         // _meetsRequirements() only returns the result of the last check,
