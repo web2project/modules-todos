@@ -5,8 +5,19 @@ if (!defined('W2P_BASE_DIR')) {
 
 $todo_id = (int) w2PgetParam($_GET, 'todo_id', 0);
 
-$todo = new CTodo();
-$todo->load($todo_id);
+// After a failed save do_todo_aed holds the posted todo, so the form shows
+//   what was entered instead of starting over.
+$todo = $AppUI->restoreObject();
+if ($todo instanceof CTodo) {
+    $todo_id = (int) $todo->todo_id;
+} else {
+    if (is_object($todo)) {
+        // another module's held object: put it back for that module
+        $AppUI->holdObject($todo);
+    }
+    $todo = new CTodo();
+    $todo->load($todo_id);
+}
 
 $AppUI->getTheme()->loadCalendarJS();
 $df = $AppUI->getPref('SHDATEFORMAT');
