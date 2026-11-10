@@ -44,23 +44,25 @@ class CSetupTodos extends w2p_System_Setup
         $q = $this->_getQuery();
         $q->createTable('todos');
         $sql = '(
-            `todo_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+            `todo_id` int unsigned NOT NULL AUTO_INCREMENT,
             `todo_name` text NOT NULL,
             `todo_due_date` datetime NOT NULL DEFAULT \'' . CTodo::NO_DUE_DATE . '\',
-            `todo_project` int(10) NOT NULL DEFAULT 0,
-            `todo_owner` int(10) NOT NULL DEFAULT 0,
-            `todo_category` int(10) NOT NULL DEFAULT 0,
-            `todo_contact` int(10) NOT NULL DEFAULT 0,
-            `todo_status` int(1) NOT NULL DEFAULT 1,
-            `todo_created` datetime NOT NULL,
-            `todo_updated` datetime NOT NULL,
+            `todo_project` int NOT NULL DEFAULT 0,
+            `todo_owner` int NOT NULL DEFAULT 0,
+            `todo_category` int NOT NULL DEFAULT 0,
+            `todo_contact` int NOT NULL DEFAULT 0,
+            `todo_status` int NOT NULL DEFAULT 1,
+            `todo_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `todo_updated` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY  (`todo_id`),
             KEY `idx_todo_owner` (`todo_owner`, `todo_status`, `todo_due_date`),
             KEY `idx_todo_project` (`todo_project`),
             KEY `idx_todo_contact` (`todo_contact`))
             ENGINE=MyISAM DEFAULT CHARSET=utf8 ';
         $q->createDefinition($sql);
-        $q->exec();
+        if (!$q->exec()) {
+            return false;
+        }
 
         $this->_convertCategoriesToSysvals();
 
@@ -114,6 +116,8 @@ class CSetupTodos extends w2p_System_Setup
         $q->alterTable('todos');
         $q->createDefinition(array(
             array('action' => 'MODIFY', 'type' => '', 'spec' => 'todo_name text NOT NULL'),
+            array('action' => 'MODIFY', 'type' => '', 'spec' => 'todo_created datetime NOT NULL DEFAULT CURRENT_TIMESTAMP'),
+            array('action' => 'MODIFY', 'type' => '', 'spec' => 'todo_updated datetime NOT NULL DEFAULT CURRENT_TIMESTAMP'),
             array('action' => 'ADD', 'type' => 'INDEX', 'spec' => 'idx_todo_owner (todo_owner, todo_status, todo_due_date)'),
             array('action' => 'ADD', 'type' => 'INDEX', 'spec' => 'idx_todo_project (todo_project)'),
             array('action' => 'ADD', 'type' => 'INDEX', 'spec' => 'idx_todo_contact (todo_contact)'),
@@ -189,10 +193,10 @@ class CSetupTodos extends w2p_System_Setup
         $q->alterTable('todos');
         $q->addField('todo_name', 'text');
         $q->addField('todo_due_date', "datetime NOT NULL DEFAULT '2038-01-01'");
-        $q->addField('todo_project', 'int(10) NOT NULL DEFAULT 0');
-        $q->addField('todo_owner', 'int(10) NOT NULL DEFAULT 0');
-        $q->addField('todo_category', 'int(10) NOT NULL DEFAULT 0');
-        $q->addField('todo_contact', 'int(10) NOT NULL DEFAULT 0');
+        $q->addField('todo_project', 'int NOT NULL DEFAULT 0');
+        $q->addField('todo_owner', 'int NOT NULL DEFAULT 0');
+        $q->addField('todo_category', 'int NOT NULL DEFAULT 0');
+        $q->addField('todo_contact', 'int NOT NULL DEFAULT 0');
         $q->exec();
 
         $convert = array('todo_title' => 'todo_name',
