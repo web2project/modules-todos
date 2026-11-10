@@ -16,7 +16,7 @@ $todoCategories = w2PgetSysVal('TodoType');
 $projects = $todo->getNextTodosByProject($owner, !empty($gtdActiveOnly));
 
 ?>
-<div id="todos_list" data-nonce="<?php echo $AppUI->getFormToken(); ?>" data-error="<?php echo $AppUI->_('The todo could not be updated. Please reload the page and try again.'); ?>">
+<div id="todos_list" data-nonce="<?php echo $AppUI->getFormToken(); ?>" data-error="<?php echo $AppUI->_('The todo could not be updated. Please reload the page and try again.'); ?>" data-confirm="<?php echo $AppUI->_('Delete this todo?'); ?>">
     <?php
     foreach ($projects as $projectId => $data) {
         $name = $projectId ? $data['project_name'] : $AppUI->_('No project specified', UI_OUTPUT_RAW);

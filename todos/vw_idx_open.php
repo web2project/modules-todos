@@ -13,7 +13,7 @@ $todoTimeframes = $todo->getTimeframes();
 $todoCategories = w2PgetSysVal('TodoType');
 ?>
 <div class="row g-3">
-    <div class="col-lg-8" id="todos_list" data-nonce="<?php echo $AppUI->getFormToken(); ?>" data-error="<?php echo $AppUI->_('The todo could not be updated. Please reload the page and try again.'); ?>">
+    <div class="col-lg-8" id="todos_list" data-nonce="<?php echo $AppUI->getFormToken(); ?>" data-error="<?php echo $AppUI->_('The todo could not be updated. Please reload the page and try again.'); ?>" data-confirm="<?php echo $AppUI->_('Delete this todo?'); ?>">
         <?php
         foreach ($todoTimeframes as $dateRangeName => $daterange) {
             $todoList = $todo->getTodosForDateRange($dateRangeName, $owner, $project_id, $contact_id, $company_id);

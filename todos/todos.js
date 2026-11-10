@@ -40,7 +40,9 @@ var w2pTodos = {
         w2pTodos.post(todoId, 'complete');
     },
     remove: function (todoId) {
-        w2pTodos.post(todoId, 'del');
+        if (confirm($('#todos_list').data('confirm'))) {
+            w2pTodos.post(todoId, 'del');
+        }
         return false;
     },
     // The add/edit form's date field: picking a date selects "other" and

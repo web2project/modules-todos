@@ -184,8 +184,8 @@ class CTodo extends w2p_Core_BaseObject
         $html = '&nbsp;(' . $this->_AppUI->_('Re:') . ' <a href="./index.php?m=contacts&amp;a=view&amp;contact_id='
             . (int) $todoItem['todo_contact'] . '">' . self::e($todoItem['contact_display_name']) . '</a>';
         if ('' != (string) $todoItem['contact_email']) {
-            $html .= ' <a href="mailto:' . self::e($todoItem['contact_email']) . '"><img border="0" src="'
-                . w2PfindImage('stock_attach-16.png') . '" alt="' . $this->_AppUI->_('Email') . '" /></a>';
+            $html .= ' <a href="mailto:' . self::e($todoItem['contact_email']) . '" title="' . $this->_AppUI->_('Email')
+                . '" aria-label="' . $this->_AppUI->_('Email') . '"><i class="bi bi-envelope" aria-hidden="true"></i></a>';
         }
 
         return $html . ')';
@@ -704,8 +704,8 @@ class CTodo extends w2p_Core_BaseObject
         <li class="list-group-item px-1 py-1" id="r<?php echo $todoItem['todo_id']; ?>">
             <?php if ($this->canChangeItem($todoItem)) { ?>
             <input type="checkbox" class="form-check-input me-1" title="<?php echo $this->_AppUI->_('Mark as done'); ?>" onClick="w2pTodos.complete(<?php echo $todoItem['todo_id']; ?>)" />
-            <a href="#" onClick="return w2pTodos.remove(<?php echo $todoItem['todo_id']; ?>);"><?php echo w2PshowImage('icons/stock_delete-16.png', 16, 16, ''); ?></a>
-            <a href="?m=todos&amp;todo_id=<?php echo $todoItem['todo_id']; ?>"><?php echo w2PshowImage('icons/pencil.gif', 16, 16, ''); ?></a>
+            <a href="#" class="link-danger" title="<?php echo $this->_AppUI->_('Delete'); ?>" aria-label="<?php echo $this->_AppUI->_('Delete'); ?>" onClick="return w2pTodos.remove(<?php echo $todoItem['todo_id']; ?>);"><i class="bi bi-trash" aria-hidden="true"></i></a>
+            <a href="?m=todos&amp;todo_id=<?php echo $todoItem['todo_id']; ?>" title="<?php echo $this->_AppUI->_('Edit'); ?>" aria-label="<?php echo $this->_AppUI->_('Edit'); ?>"><i class="bi bi-pencil" aria-hidden="true"></i></a>
             <?php } ?>
             <em class="text-body-secondary"><?php echo $this->_AppUI->_(isset($todoCategories[$todoItem['todo_category']]) ? $todoCategories[$todoItem['todo_category']] : ''); ?></em>
             <?php if (in_array($dateRangeName, array('overdue', 'later')) && self::hasDueDate($todoItem['todo_due_date'])) { ?>
