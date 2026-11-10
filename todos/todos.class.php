@@ -164,6 +164,50 @@ class CTodo extends w2p_Core_BaseObject
     }
 
     /**
+     * The Getting Things Done views: the next few open todos for each
+     *   project, soonest first, in one query. Todos without a project come
+     *   first under project id 0.
+     *
+     * @param int  $user_id    0 for all users
+     * @param bool $activeOnly only active projects (and todos without one)
+     * @param int  $perProject how many todos to keep per project
+     *
+     * @return array project id => array('project_name' => ..., 'todos' => rows)
+     */
+    public function getNextTodosByProject($user_id = 0, $activeOnly = true, $perProject = 3)
+    {
+        $user_id = (int) $user_id;
+
+        $q = $this->_getQuery();
+        $q->addQuery('st.*');
+        $q->addTable('todos', 'st');
+        $q->addQuery('pr.project_name, pr.project_color_identifier');
+        $q->leftJoin('projects', 'pr', 'pr.project_id = st.todo_project');
+        $q->addWhere('st.todo_status = 1');
+        if ($user_id) {
+            $q->addWhere('st.todo_owner = ' . $user_id);
+        }
+        if ($activeOnly) {
+            $q->addWhere('(st.todo_project = 0 OR pr.project_active = 1)');
+        }
+        $this->_restrictToAllowedProjects($q, 'st.todo_project');
+        $q->addOrder('(st.todo_project > 0), pr.project_name, st.todo_project, st.todo_due_date, st.todo_name');
+
+        $projects = array();
+        foreach ($q->loadList() as $row) {
+            $projectId = (int) $row['todo_project'];
+            if (!isset($projects[$projectId])) {
+                $projects[$projectId] = array('project_name' => $row['project_name'], 'todos' => array());
+            }
+            if (count($projects[$projectId]['todos']) < $perProject) {
+                $projects[$projectId]['todos'][] = $row;
+            }
+        }
+
+        return $projects;
+    }
+
+    /**
      * The  "description" field purposely not included as we don't have that
      *  field on this table.  This list of fields - id, name, description,
      *  startDate, endDate, updatedDate - are named specifically for the iCal
