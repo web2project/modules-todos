@@ -21,6 +21,14 @@ if ($complete) {
     $result = ($del) ? $obj->delete() : $obj->store();
 }
 
+// The list's complete/delete links post in the background (todos.js) and
+//   need a yes/no answer instead of a redirect.
+if (w2PgetParam($_POST, 'ajax', 0)) {
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(array('ok' => (bool) $result, 'errors' => $obj->getError()));
+    exit;
+}
+
 if (is_array($result)) {
     $AppUI->setMsg($result, UI_MSG_ERROR, true);
     $AppUI->holdObject($obj);

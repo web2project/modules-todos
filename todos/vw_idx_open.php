@@ -13,7 +13,7 @@ $todoTimeframes = $todo->getTimeframes();
 
 <table width="100%">
     <tr>
-        <td id="todos_list" style="width: 100%; vertical-align: top;">
+        <td id="todos_list" style="width: 100%; vertical-align: top;" data-nonce="<?php echo $AppUI->getFormToken(); ?>" data-error="<?php echo $AppUI->_('The todo could not be updated. Please reload the page and try again.'); ?>">
             <?php
             $todoTimeframes = $todo->getTimeframes();
             $todoCategories = w2PgetSysVal('TodoType');
