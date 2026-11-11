@@ -58,7 +58,9 @@ KNOWN ISSUES
 
 Open Issues:
 
-*  The module can't set its own icon in the Bootstrap sidebar, so it shows the generic one until web2project offers a way for add-on modules to do that.
+*  The module can't set its own icon in the Bootstrap sidebar, so it shows the generic one until web2project offers a way for add-on modules to do that (web2project/web2project#434).
+
+*  The Todolist tab for a Contact doesn't appear: web2project 5.0's Contact page doesn't show other modules' tabs (web2project/web2project#561). The Project and Company tabs work.
 
 INSTALL
 
