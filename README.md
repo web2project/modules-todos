@@ -1,14 +1,8 @@
-TodoList v3.0.1
-CaseySoftware, LLC
-
-
-** v3.0 of this module requires web2project v5.0 or later and PHP 8.3 or later. Use v2.0 for web2project v3.x and v4.x. **
+# TodoList v3.0.1
 
 The TodoList module handles simple todo management for web2project. Todo items are different from Tasks in that a todo is either done or not done. They don't have a percent complete or a true duration therefore, they don't make sense as Tasks. These items can optionally be attached to specific Projects, Contacts, or both.
 
-COMPATIBLE VERSIONS
-
-=====================================
+## Requirements
 
 * v3.0 of this module has been updated for web2project v5.0 (PHP 8.3+, MySQL 8 strict mode, the Bootstrap theme) and refuses to install on anything older.
 
@@ -20,8 +14,7 @@ COMPATIBLE VERSIONS
 
 * This won't work with dotProject, don't even bother trying.
 
-Changelog
-=====================================
+## Changelog
 
 3.0.1  Fix adding todos on sites first installed with v1.3 or earlier
 -  Drops the unused todo_closed column those installs still had. Under MySQL 8 it made adding a todo fail ("Field 'todo_closed' doesn't have a default value") and stopped upgrades from 1.x; a closed date stored there is kept in todo_updated;
@@ -55,19 +48,15 @@ Changelog
 -  On deleting an item, the screen scrolls up to the top of the page;
 -  The Category List is now stored in the System Lookup Values as opposed to being hardcoded in the CTodo class;
 
-KNOWN ISSUES
+## Known Issues
 
-=====================================
-
-Open Issues:
+### Open Issues:
 
 *  The module can't set its own icon in the Bootstrap sidebar, so it shows the generic one until web2project offers a way for add-on modules to do that (web2project/web2project#434).
 
 *  The Todolist tab for a Contact doesn't appear: web2project 5.0's Contact page doesn't show other modules' tabs (web2project/web2project#561). The Project and Company tabs work.
 
-INSTALL
-
-=====================================
+## Install
 
 0.  Previous installations of this module can simply be overwritten.
 
@@ -79,9 +68,7 @@ INSTALL
 
 4.  Upgrading from an earlier version: overwrite the files, then select "upgrade" on the "Todos" row. Back up the todos table first; the upgrade converts the stored "Later" dates and changes the table.
 
-TESTS
-
-=====================================
+## Tests
 
 The unit tests in todos/unit_tests use web2project's own test setup. With the module installed in modules/todos, run them from web2project's unit_tests directory:
 
@@ -91,9 +78,7 @@ To check the module with web2project's static analysis settings, run this from t
 
     vendor/bin/phpstan analyse -c phpstan.neon.dist modules/todos
 
-USAGE
-
-=====================================
+## Usage
 
 1.  Within the TodoList module, fill in the form and hit "save"
 
