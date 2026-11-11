@@ -12,7 +12,7 @@ if (!defined('W2P_BASE_DIR')){
 
 $config = array();
 $config['mod_name']        = 'Todos';
-$config['mod_version']     = '3.0.0';
+$config['mod_version']     = '3.0.1';
 $config['mod_directory']   = 'todos';               // tell web2project where to find this module
 $config['mod_setup_class'] = 'CSetupTodos';         // the name of the PHP setup class (used below)
 $config['mod_type']        = 'user';                // 'core' for modules distributed with w2p by standard, 'user' for additional modules
@@ -85,6 +85,14 @@ class CSetupTodos extends w2p_System_Setup
         //   change, so point releases (1.1.2, 1.4.1, 2.0) aren't skipped.
         //   Thresholds have two parts on purpose: version_compare() puts
         //   '1.4' before '1.4.0'.
+        if (version_compare($old_version, '3.0.1', '<')) {
+            // First, because any other ALTER on a table that still has
+            //   todo_closed fails under MySQL 8 strict mode (see below).
+            //   Also runs for 3.0.0, which kept the column.
+            if (!$this->_dropLegacyClosedColumn()) {
+                return false;
+            }
+        }
         if (version_compare($old_version, '1.1', '<')) {
             // 1.1 moved the hardcoded categories into System Lookup Values
             $this->_convertCategoriesToSysvals();
@@ -103,6 +111,67 @@ class CSetupTodos extends w2p_System_Setup
 
 		return true;
 	}
+
+    /**
+     * Removes todo_closed, a column that installs from 1.3 and earlier
+     *   still have: "datetime NOT NULL" with no default. Nothing has used
+     *   it since 1.4, but the column was never dropped. Under MySQL 8
+     *   strict mode it breaks the module in two ways:
+     *   - adding a todo fails with "Field 'todo_closed' doesn't have a
+     *     default value", because the insert doesn't name it, and
+     *   - every open todo holds 0000-00-00 there (MySQL 5 filled that
+     *     in), so any ALTER TABLE that copies the table fails, which
+     *     stops the other upgrade steps.
+     *
+     * A real closed date is kept in todo_updated, which the Closed Items
+     *   tab sorts by. Zero dates in the remaining datetime columns are
+     *   cleared first, because they also make the DROP's table copy fail.
+     *
+     * @return bool
+     */
+    private function _dropLegacyClosedColumn()
+    {
+        $columns = $this->_todoColumns();
+        if (!in_array('todo_closed', $columns, true)) {
+            return true;
+        }
+
+        $q = $this->_getQuery();
+        $q->addTable('todos');
+        $q->addUpdate('todo_updated', 'todo_closed', false, true);
+        $q->addWhere("todo_status = 0 AND todo_closed >= '1000-01-01'");
+        if (!$q->exec()) {
+            return false;
+        }
+
+        // the due date column is todo_due before 1.4 and todo_due_date after
+        $candidates = array('todo_due' => "'" . CTodo::NO_DUE_DATE . "'",
+            'todo_due_date' => "'" . CTodo::NO_DUE_DATE . "'",
+            'todo_created' => 'NOW()', 'todo_updated' => 'todo_created');
+        $zeroDates = array();
+        foreach ($candidates as $column => $value) {
+            if (in_array($column, $columns, true)) {
+                $zeroDates[$column] = $value;
+            }
+        }
+        if (!$this->_clearZeroDates($zeroDates)) {
+            return false;
+        }
+
+        return $this->_alterTodos(array(array('DROP', 'todo_closed')));
+    }
+
+    /**
+     * The todos table's column names, in lower case.
+     *
+     * @return string[]
+     */
+    private function _todoColumns()
+    {
+        $names = $this->_getQuery()->_db->MetaColumnNames('todos');
+
+        return array_map('strtolower', array_values(is_array($names) ? $names : array()));
+    }
 
     /**
      * Brings a pre-3.0 table in line with a fresh install: the 1.x -> 2.0

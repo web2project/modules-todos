@@ -1,4 +1,4 @@
-TodoList v3.0
+TodoList v3.0.1
 CaseySoftware, LLC
 
 
@@ -22,6 +22,9 @@ COMPATIBLE VERSIONS
 
 Changelog
 =====================================
+
+3.0.1  Fix adding todos on sites first installed with v1.3 or earlier
+-  Drops the unused todo_closed column those installs still had. Under MySQL 8 it made adding a todo fail ("Field 'todo_closed' doesn't have a default value") and stopped upgrades from 1.x; a closed date stored there is kept in todo_updated;
 
 3.0  Updated for web2project v5.0
 -  Requires web2project v5.0+ and PHP 8.3+; loads on PHP 8 again (CTodo::delete() signature);
